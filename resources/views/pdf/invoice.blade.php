@@ -296,8 +296,8 @@
         <div class="section-title">Invoice For</div>
         <div class="client-box">
             <div class="name">{{ $invoice->client->name }}</div>
-            @if($invoice->client->company)<div>{{ $invoice->client->company }}</div>@endif
             @if($invoice->client->designation)<div>{{ $invoice->client->designation }}</div>@endif
+            @if($invoice->client->company)<div>{{ $invoice->client->company }}</div>@endif
             @if($invoice->client->email)<div>{{ $invoice->client->email }}</div>@endif
             @if($invoice->client->phone)<div>{{ $invoice->client->phone }}</div>@endif
         </div>
