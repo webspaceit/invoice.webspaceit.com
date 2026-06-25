@@ -518,6 +518,7 @@ function ClientInfoCard({
         <div className="rounded-md border bg-muted/50 px-3 py-2 text-sm space-y-0.5">
             <p className="font-semibold">{client.name}</p>
             {client.company && <p className="text-muted-foreground">{client.company}</p>}
+            {client.designation && <p className="text-muted-foreground">{client.designation}</p>}
             {client.email && <p className="text-muted-foreground">{client.email}</p>}
             {client.phone && <p className="text-muted-foreground">{client.phone}</p>}
             {client.billing_address && (

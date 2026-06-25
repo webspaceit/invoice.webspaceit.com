@@ -22,6 +22,7 @@ export function ClientSelect({ clients, value, onChange, error }: Props) {
             return (
                 c.name.toLowerCase().includes(q) ||
                 (c.company && c.company.toLowerCase().includes(q)) ||
+                (c.designation && c.designation.toLowerCase().includes(q)) ||
                 (c.email && c.email.toLowerCase().includes(q)) ||
                 (c.phone && c.phone.toLowerCase().includes(q))
             );
@@ -68,10 +69,15 @@ export function ClientSelect({ clients, value, onChange, error }: Props) {
                                 >
                                     {({ selected: isSelected }) => (
                                         <div className="flex w-full items-center justify-between">
-                                            <span>
-                                                {client.name}
-                                                {client.company ? `, ${client.company}` : ''}
-                                            </span>
+                                    <div className="flex flex-col">
+                                        <span>
+                                            {client.name}
+                                            {client.company ? `, ${client.company}` : ''}
+                                        </span>
+                                        {client.designation && (
+                                            <span className="text-xs text-muted-foreground">{client.designation}</span>
+                                        )}
+                                    </div>
                                             {isSelected && (
                                                 <Check className="size-4 text-primary" />
                                             )}
