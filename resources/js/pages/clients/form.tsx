@@ -8,6 +8,7 @@ import type { Client } from '@/types/invoice';
 export type ClientFormData = {
     name: string;
     company: string;
+    designation: string;
     email: string;
     phone: string;
     billing_address: string;
@@ -24,6 +25,7 @@ export function clientToForm(client?: Client): ClientFormData {
     return {
         name: client?.name ?? '',
         company: client?.company ?? '',
+        designation: client?.designation ?? '',
         email: client?.email ?? '',
         phone: client?.phone ?? '',
         billing_address: client?.billing_address ?? '',
@@ -56,6 +58,13 @@ export function ClientForm({ form, submitLabel, title, onSubmit }: Props) {
                     value={data.company}
                     error={errors.company}
                     onChange={(value) => setData('company', value)}
+                />
+                <Field
+                    id="designation"
+                    label="Designation"
+                    value={data.designation}
+                    error={errors.designation}
+                    onChange={(value) => setData('designation', value)}
                 />
                 <Field
                     id="email"

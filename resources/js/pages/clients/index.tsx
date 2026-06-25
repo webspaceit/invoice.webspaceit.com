@@ -49,6 +49,7 @@ export default function ClientsIndex({ clients, admins }: Props) {
                         <tr>
                             <th className="p-3 text-left">Name</th>
                             <th className="p-3 text-left">Company</th>
+                            <th className="p-3 text-left">Designation</th>
                             <th className="p-3 text-left">Contact</th>
                             <th className="p-3 text-left">Invoices</th>
                             {isSuperAdmin && <th className="p-3 text-left">Assigned Admins</th>}
@@ -62,6 +63,7 @@ export default function ClientsIndex({ clients, admins }: Props) {
                                 <tr key={client.id} className="border-t">
                                     <td className="p-3 font-medium">{client.name}</td>
                                     <td className="p-3">{client.company ?? '-'}</td>
+                                    <td className="p-3">{client.designation ?? '-'}</td>
                                     <td className="p-3 text-sm text-muted-foreground">
                                         <div>{client.email ?? '-'}</div>
                                         <div>{client.phone ?? ''}</div>

@@ -2,6 +2,7 @@ export type Client = {
     id: number;
     name: string;
     company: string | null;
+    designation: string | null;
     email: string | null;
     phone: string | null;
     billing_address: string;
