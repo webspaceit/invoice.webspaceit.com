@@ -227,6 +227,6 @@ class InvoiceController extends Controller
 
         return $query
             ->orderBy('name')
-            ->get(['id', 'name', 'company', 'billing_address']);
+            ->get(['id', 'name', 'company', 'designation', 'email', 'phone', 'billing_address']);
     }
 }
