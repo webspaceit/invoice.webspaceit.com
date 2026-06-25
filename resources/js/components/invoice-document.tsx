@@ -111,7 +111,7 @@ function Header({ invoice }: Props) {
     return (
         <header className="flex items-start justify-between border-b-4 border-[#032f44] pb-4">
             <img
-                src="/images/logo.png"
+                src="/images/web-space-it-logo.png"
                 alt="Web Space IT"
                 className="h-auto w-[220px]"
             />

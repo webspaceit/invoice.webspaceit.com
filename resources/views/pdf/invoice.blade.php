@@ -264,7 +264,7 @@
 
 <div class="header">
     <div class="header-left">
-        <img src="{{ public_path('images/logo.png') }}" alt="Web Space IT"/>
+        <img src="{{ public_path('images/web-space-it-logo.png') }}" alt="Web Space IT"/>
     </div>
     <div class="header-right">
         <h1>INVOICE</h1>
