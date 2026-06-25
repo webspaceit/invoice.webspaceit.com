@@ -45,7 +45,7 @@
         display: table;
         width: 100%;
         border-bottom: 4px solid #032f44;
-        padding-bottom: 10px;
+        padding: 15px 0 10px 0;
     }
     .header-left,
     .header-right {
