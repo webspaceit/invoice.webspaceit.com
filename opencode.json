@@ -1,0 +1,13 @@
+{
+  "vps": {
+    "production": {
+      "host": "108.181.215.151",
+      "port": 22,
+      "user": "webspaceit",
+      "auth": {
+        "type": "key",
+        "keyPath": "~/.ssh/id_rsa"
+      }
+    }
+  }
+}
