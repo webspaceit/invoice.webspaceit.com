@@ -42,50 +42,52 @@ export default function Dashboard({
                     <Metric label="Overdue" value={summary.overdue_invoices} />
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+                <div className="grid gap-6 xl:grid-cols-[1fr_200px]">
                     <div className="overflow-hidden rounded-lg border bg-card">
                         <div className="border-b p-4">
                             <h2 className="font-semibold">Recent Invoices</h2>
                         </div>
-                        <table className="w-full min-w-[760px]">
-                            <thead className="bg-muted">
-                                <tr>
-                                    <th className="p-3 text-left">Invoice</th>
-                                    <th className="p-3 text-left">Client</th>
-                                    <th className="p-3 text-left">Status</th>
-                                    <th className="p-3 text-right">Total</th>
-                                    <th className="p-3 text-right">Due</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {recentInvoices.map((invoice) => (
-                                    <tr key={invoice.id} className="border-t">
-                                        <td className="p-3 font-medium">
-                                            <Link
-                                                href={`/invoices/${invoice.id}`}
-                                                className="text-blue-700 hover:underline dark:text-blue-300"
-                                            >
-                                                {invoice.invoice_number}
-                                            </Link>
-                                        </td>
-                                        <td className="p-3">{invoice.client.name}</td>
-                                        <td className="p-3">
-                                            <span
-                                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(invoice.payment_status)}`}
-                                            >
-                                                {statusLabels[invoice.payment_status]}
-                                            </span>
-                                        </td>
-                                        <td className="p-3 text-right">
-                                            {money(invoice.invoice_total)}
-                                        </td>
-                                        <td className="p-3 text-right font-medium">
-                                            {money(invoice.amount_due)}
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-muted">
+                                    <tr>
+                                        <th className="p-3 text-left">Invoice</th>
+                                        <th className="p-3 text-left">Client</th>
+                                        <th className="p-3 text-left">Status</th>
+                                        <th className="p-3 text-right">Total</th>
+                                        <th className="p-3 text-right">Due</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {recentInvoices.map((invoice) => (
+                                        <tr key={invoice.id} className="border-t">
+                                            <td className="p-3 font-medium">
+                                                <Link
+                                                    href={`/invoices/${invoice.id}`}
+                                                    className="text-blue-700 hover:underline dark:text-blue-300"
+                                                >
+                                                    {invoice.invoice_number}
+                                                </Link>
+                                            </td>
+                                            <td className="p-3">{invoice.client.name}</td>
+                                            <td className="p-3">
+                                                <span
+                                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(invoice.payment_status)}`}
+                                                >
+                                                    {statusLabels[invoice.payment_status]}
+                                                </span>
+                                            </td>
+                                            <td className="p-3 text-right">
+                                                {money(invoice.invoice_total)}
+                                            </td>
+                                            <td className="p-3 text-right font-medium">
+                                                {money(invoice.amount_due)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div className="rounded-lg border bg-card p-4">
