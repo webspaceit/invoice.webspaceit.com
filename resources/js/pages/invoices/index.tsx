@@ -1,6 +1,12 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Download, Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { Download, Edit, Eye, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { money, statusClass, statusLabels } from '@/lib/invoice';
 import type { Invoice, Paginated } from '@/types/invoice';
 
@@ -83,33 +89,44 @@ export default function InvoicesIndex({ invoices }: Props) {
                                         {money(invoice.amount_due)}
                                     </td>
                                     <td className="p-3 text-right">
-                                        <Button variant="ghost" size="icon" asChild>
-                                            <Link href={`/invoices/${invoice.id}`}>
-                                                <Eye className="size-4" />
-                                            </Link>
-                                        </Button>
-                                        <Button variant="ghost" size="icon" asChild>
-                                            <a href={`/invoices/${invoice.id}/pdf`}>
-                                                <Download className="size-4" />
-                                            </a>
-                                        </Button>
-                                        {isAdmin && (
-                                            <>
-                                                <Button variant="ghost" size="icon" asChild>
-                                                    <Link href={`/invoices/${invoice.id}/edit`}>
-                                                        <Edit className="size-4" />
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40">
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/invoices/${invoice.id}`}>
+                                                        <Eye className="size-4" />
+                                                        View
                                                     </Link>
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => deleteInvoice(invoice)}
-                                                    className="text-destructive hover:text-destructive"
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
-                                            </>
-                                        )}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem asChild>
+                                                    <a href={`/invoices/${invoice.id}/pdf`}>
+                                                        <Download className="size-4" />
+                                                        Download PDF
+                                                    </a>
+                                                </DropdownMenuItem>
+                                                {isAdmin && (
+                                                    <>
+                                                        <DropdownMenuItem asChild>
+                                                            <Link href={`/invoices/${invoice.id}/edit`}>
+                                                                <Edit className="size-4" />
+                                                                Edit
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => deleteInvoice(invoice)}
+                                                            className="text-destructive focus:text-destructive"
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </td>
                                 </tr>
                             ))}
