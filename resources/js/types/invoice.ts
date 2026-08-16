@@ -36,6 +36,8 @@ export type Invoice = {
     note: string | null;
     signature: string | null;
     payment_slip: string | null;
+    payment_method: string | null;
+    actual_paid_amount: string | null;
     signatory_designation: string | null;
     client: Client;
     items: InvoiceItem[];

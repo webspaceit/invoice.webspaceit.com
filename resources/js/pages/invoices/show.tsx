@@ -120,6 +120,18 @@ export default function ShowInvoice({ invoice }: Props) {
                             <span>{formatDate(invoice.paid_date)}</span>
                         </div>
                     )}
+                    {invoice.payment_method && (
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Payment Method</span>
+                            <span>{invoice.payment_method}</span>
+                        </div>
+                    )}
+                    {invoice.actual_paid_amount !== null && (
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Actual Payment Received</span>
+                            <span>{money(invoice.actual_paid_amount)}</span>
+                        </div>
+                    )}
                     {invoice.payment_status !== 'paid' && (
                         <SummaryRow
                             label="Amount Due"

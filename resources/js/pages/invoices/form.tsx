@@ -23,6 +23,8 @@ export type InvoiceFormData = {
     invoice_date: string;
     due_date: string;
     paid_date: string;
+    payment_method: string;
+    actual_paid_amount: string;
     discount_amount: string;
     tax_rate: string;
     total_paid: string;
@@ -59,6 +61,8 @@ export function invoiceToForm(
                 .toISOString()
                 .slice(0, 10),
         paid_date: invoice?.paid_date ?? '',
+        payment_method: invoice?.payment_method ?? '',
+        actual_paid_amount: invoice?.actual_paid_amount ?? '',
         discount_amount: invoice?.discount_amount ?? '0',
         tax_rate: invoice?.tax_rate ?? '0',
         total_paid: invoice?.total_paid ?? '0',
@@ -119,8 +123,13 @@ export function InvoiceForm({
 
     function handleStatusChange(value: string) {
         setData('payment_status', value as InvoiceStatus);
-        if (value === 'paid' && !data.paid_date) {
-            setData('paid_date', new Date().toISOString().slice(0, 10));
+        if (value === 'paid') {
+            if (!data.paid_date) {
+                setData('paid_date', new Date().toISOString().slice(0, 10));
+            }
+            if (!data.actual_paid_amount) {
+                setData('actual_paid_amount', data.total_paid);
+            }
         }
     }
 
@@ -191,14 +200,29 @@ export function InvoiceForm({
                     onChange={(value) => setData('due_date', value)}
                 />
                 {data.payment_status === 'paid' && (
-                    <Field
-                        id="paid_date"
-                        label="Paid Date"
-                        type="date"
-                        value={data.paid_date}
-                        error={errors.paid_date}
-                        onChange={(value) => setData('paid_date', value)}
-                    />
+                    <>
+                        <Field
+                            id="paid_date"
+                            label="Paid Date"
+                            type="date"
+                            value={data.paid_date}
+                            error={errors.paid_date}
+                            onChange={(value) => setData('paid_date', value)}
+                        />
+                        <PaymentMethodField
+                            value={data.payment_method}
+                            error={errors.payment_method}
+                            onChange={(value) => setData('payment_method', value)}
+                        />
+                        <Field
+                            id="actual_paid_amount"
+                            label="Actual Payment Received"
+                            type="number"
+                            value={data.actual_paid_amount}
+                            error={errors.actual_paid_amount}
+                            onChange={(value) => setData('actual_paid_amount', value)}
+                        />
+                    </>
                 )}
                 <Field
                     id="discount_amount"
@@ -442,6 +466,37 @@ function Field({
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
             />
+            {error && <p className="text-sm text-destructive">{error}</p>}
+        </div>
+    );
+}
+
+function PaymentMethodField({
+    value,
+    onChange,
+    error,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+}) {
+    return (
+        <div className="space-y-2">
+            <Label>Payment Method</Label>
+            <Select value={value} onValueChange={onChange}>
+                <SelectTrigger className="w-full">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    {['Cash', 'Bank Transfer', 'bKash', 'Nagad', 'Rocket', 'Cheque'].map(
+                        (method) => (
+                            <SelectItem key={method} value={method}>
+                                {method}
+                            </SelectItem>
+                        ),
+                    )}
+                </SelectContent>
+            </Select>
             {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
     );

@@ -66,6 +66,7 @@ class InvoiceController extends Controller
                 'invoice_number' => $data['invoice_number'] ?: Invoice::nextInvoiceNumber(),
                 'payment_status' => $data['payment_status'],
                 'paid_date' => $this->resolvePaidDate($data),
+                ...$this->resolvePaymentDetails($data),
                 'note' => $data['note'] ?: Invoice::DEFAULT_NOTE,
                 'signature' => $signaturePath,
                 'signatory_designation' => $data['signatory_designation'] ?? null,
@@ -137,6 +138,7 @@ class InvoiceController extends Controller
                 ...$totals,
                 'payment_status' => $data['payment_status'],
                 'paid_date' => $this->resolvePaidDate($data),
+                ...$this->resolvePaymentDetails($data),
                 'note' => $data['note'] ?: Invoice::DEFAULT_NOTE,
                 'signature' => $signaturePath,
                 'signatory_designation' => $data['signatory_designation'] ?? null,
@@ -193,6 +195,8 @@ class InvoiceController extends Controller
             'invoice_date' => ['required', 'date'],
             'due_date' => ['required', 'date', 'after_or_equal:invoice_date'],
             'paid_date' => ['nullable', 'date'],
+            'payment_method' => ['nullable', 'string', 'max:255', Rule::in(Invoice::PAYMENT_METHODS)],
+            'actual_paid_amount' => ['nullable', 'numeric', 'min:0'],
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'total_paid' => ['nullable', 'numeric', 'min:0'],
@@ -245,6 +249,16 @@ class InvoiceController extends Controller
         }
 
         return ($data['paid_date'] ?? null) ?: now()->toDateString();
+    }
+
+    private function resolvePaymentDetails(array $data): array
+    {
+        $isPaid = ($data['payment_status'] ?? null) === 'paid';
+
+        return [
+            'payment_method' => $isPaid ? ($data['payment_method'] ?? null) : null,
+            'actual_paid_amount' => $isPaid ? ($data['actual_paid_amount'] ?? null) : null,
+        ];
     }
 
     private function prepareItems(array $items): array

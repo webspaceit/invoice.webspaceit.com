@@ -74,7 +74,7 @@ export default function InvoicesIndex({ invoices }: Props) {
 
             <div className="overflow-hidden rounded-lg border bg-card">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1040px]">
+                    <table className="w-full min-w-[1240px]">
                         <thead className="bg-muted">
                             <tr>
                                 <th className="p-3 text-left">Invoice</th>
@@ -82,7 +82,9 @@ export default function InvoicesIndex({ invoices }: Props) {
                                 <th className="p-3 text-left">Due Date</th>
                                 <th className="p-3 text-left">Status</th>
                                 <th className="p-3 text-left">Paid Date</th>
-                                <th className="p-3 text-left">Slip</th>
+                                <th className="p-3 text-left">Payment Method</th>
+                                <th className="p-3 text-right">Actual Paid</th>
+                                <th className="p-3 text-left">Payment Slip</th>
                                 <th className="p-3 text-right">Total</th>
                                 <th className="p-3 text-right">Paid</th>
                                 <th className="p-3 text-right">Due</th>
@@ -114,6 +116,15 @@ export default function InvoicesIndex({ invoices }: Props) {
                                         </span>
                                     </td>
                                     <td className="p-3">{formatDate(invoice.paid_date) || '—'}</td>
+                                    <td className="p-3">
+                                        {invoice.payment_method ?? '—'}
+                                    </td>
+                                    <td className="p-3 text-right">
+                                        {invoice.payment_status === 'paid' &&
+                                            invoice.actual_paid_amount !== null
+                                            ? money(invoice.actual_paid_amount)
+                                            : '—'}
+                                    </td>
                                     <td className="p-3">
                                         <input
                                             ref={(el) => {

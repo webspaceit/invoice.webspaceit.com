@@ -91,11 +91,22 @@ export function InvoiceDocument({ invoice }: Props) {
                         label="Total Paid"
                         value={money(invoice.total_paid)}
                     />
-                    <TotalRow
-                        label="Amount Due"
-                        value={money(invoice.amount_due)}
-                        strong
-                    />
+                    {invoice.payment_method && (
+                        <TotalRow label="Payment Method" value={invoice.payment_method} />
+                    )}
+                    {invoice.actual_paid_amount !== null && (
+                        <TotalRow
+                            label="Actual Payment Received"
+                            value={money(invoice.actual_paid_amount)}
+                        />
+                    )}
+                    {invoice.payment_status !== 'paid' && (
+                        <TotalRow
+                            label="Amount Due"
+                            value={money(invoice.amount_due)}
+                            strong
+                        />
+                    )}
                 </div>
             </section>
 

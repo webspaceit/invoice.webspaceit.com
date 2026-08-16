@@ -10,6 +10,8 @@ class Invoice extends Model
 {
     public const STATUSES = ['draft', 'unpaid', 'partial', 'paid', 'overdue'];
 
+    public const PAYMENT_METHODS = ['Cash', 'Bank Transfer', 'bKash', 'Nagad', 'Rocket', 'Cheque'];
+
     public const DEFAULT_NOTE = 'You are requested to pay the due invoice within the three working days from the due date. You can pay the bill by Cash, Bank or Bkash Merchant. Thanks for your communications with us.';
 
     protected $fillable = [
@@ -29,6 +31,8 @@ class Invoice extends Model
         'note',
         'signature',
         'payment_slip',
+        'payment_method',
+        'actual_paid_amount',
         'signatory_designation',
     ];
 
@@ -43,6 +47,7 @@ class Invoice extends Model
         'invoice_total' => 'decimal:2',
         'total_paid' => 'decimal:2',
         'amount_due' => 'decimal:2',
+        'actual_paid_amount' => 'decimal:2',
     ];
 
     public function client(): BelongsTo
