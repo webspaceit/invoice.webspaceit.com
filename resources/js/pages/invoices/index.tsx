@@ -85,6 +85,7 @@ export default function InvoicesIndex({ invoices }: Props) {
                     <table className="w-full min-w-[1240px] text-sm">
                         <thead>
                             <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                                <th className="px-4 py-3 font-semibold">Sl.</th>
                                 <th className="px-4 py-3 font-semibold">Invoice</th>
                                 <th className="px-4 py-3 font-semibold">Client</th>
                                 <th className="px-4 py-3 font-semibold">Due Date</th>
@@ -102,14 +103,15 @@ export default function InvoicesIndex({ invoices }: Props) {
                         <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
                             {invoices.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={12} className="px-4 py-14 text-center text-muted-foreground">
+                                    <td colSpan={13} className="px-4 py-14 text-center text-muted-foreground">
                                         <FileText className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                         No invoices found yet.
                                     </td>
                                 </tr>
                             )}
-                            {invoices.data.map((invoice) => (
+                            {invoices.data.map((invoice, index) => (
                                 <tr key={invoice.id} className="transition-colors hover:bg-muted/40">
+                                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{index + 1}</td>
                                     <td className="relative py-3 pl-5 pr-4">
                                         <span
                                             className={`pointer-events-none absolute inset-y-0 left-0 w-1 ${statusBarClass(invoice.payment_status)}`}
