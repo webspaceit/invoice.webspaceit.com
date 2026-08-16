@@ -200,6 +200,8 @@
         line-height: 1.5;
         width: 50%;
     }
+    .footer .col.caddress { width: 75%; }
+    .footer .col.csignature { width: 25%; }
     .footer .col{
         
     }
@@ -411,7 +413,7 @@
         <div>Email: info@webspaceit.com, webspaceit@gmail.com</div>
         <div>Web: www.webspaceit.com</div>
     </div>
-    <div class="col">
+    <div class="col csignature">
         <h3 class="thank-you">Thank You</h3>
         @if($invoice->signature || $invoice->signatory_designation)
         <div class="signature-block">
