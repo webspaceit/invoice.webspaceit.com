@@ -8,7 +8,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import TableSearch from '@/components/table-search';
-import { formatDate } from '@/lib/invoice';
+import { formatDateShort } from '@/lib/invoice';
 import type { Paginated } from '@/types/invoice';
 import type { Domain } from '@/types/domain';
 
@@ -167,10 +167,10 @@ export default function DomainsIndex({ domains, filters }: Props) {
                                     ) : '-'}
                                 </td>
                                 <td className="px-4 py-3">{domain.hosting_provider ?? '-'}</td>
-                                <td className="whitespace-nowrap px-4 py-3">{formatDate(domain.registration_date)}</td>
-                                <td className="whitespace-nowrap px-4 py-3">{formatDate(domain.expiry_date)}</td>
-                                <td className="whitespace-nowrap px-4 py-3">{formatDate(domain.hosting_registration_date) || '-'}</td>
-                                <td className="whitespace-nowrap px-4 py-3">{formatDate(domain.hosting_expiry_date) || '-'}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{formatDateShort(domain.registration_date)}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{formatDateShort(domain.expiry_date)}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{formatDateShort(domain.hosting_registration_date) || '-'}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{formatDateShort(domain.hosting_expiry_date) || '-'}</td>
                                 <td className="px-4 py-3">
                                     <StatusBadge status={domain.computed_status} />
                                 </td>
