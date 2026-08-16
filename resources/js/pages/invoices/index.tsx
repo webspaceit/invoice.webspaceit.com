@@ -91,7 +91,7 @@ export default function InvoicesIndex({ invoices }: Props) {
                                 <th className="px-4 py-3 font-semibold">Status</th>
                                 <th className="px-4 py-3 font-semibold">Paid Date</th>
                                 <th className="px-4 py-3 font-semibold">Payment Method</th>
-                                <th className="px-4 py-3 text-right font-semibold">Actual Paid</th>
+                                <th className="px-4 py-3 text-right font-semibold">Actually Received</th>
                                 <th className="px-4 py-3 font-semibold">Payment Slip</th>
                                 <th className="px-4 py-3 text-right font-semibold">Total</th>
                                 <th className="px-4 py-3 text-right font-semibold">Paid</th>
