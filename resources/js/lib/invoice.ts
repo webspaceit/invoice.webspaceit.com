@@ -18,6 +18,31 @@ export function money(value: number | string | null | undefined) {
     }).format(Number.isFinite(amount) ? amount : 0);
 }
 
+const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
+
+export function formatDate(value: string | null | undefined) {
+    if (!value) return '';
+
+    const [y, m, d] = value.split('-').map(Number);
+
+    if (!y || !m || !d || m < 1 || m > 12) return value;
+
+    return `${d}-${MONTHS[m - 1]}-${y}`;
+}
+
 export function statusClass(status: InvoiceStatus) {
     const classes: Record<InvoiceStatus, string> = {
         draft: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',

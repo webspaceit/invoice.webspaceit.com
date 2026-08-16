@@ -82,6 +82,7 @@
         width: 25%;
         vertical-align: top;
     }
+    .info-grid-full .info-box { width: 50%; }
     .info-box.dark {
         background-color: #032f44;
         color: #fff;
@@ -269,26 +270,33 @@
     <div class="header-right">
         <h1>INVOICE</h1>
         <p class="status">{{ ucfirst($invoice->payment_status) }}</p>
+        @if($invoice->paid_date)
+        <p style="font-size:14px; color:#0f7a18; margin:2px 0 0 0; font-family:Arial, Helvetica, sans-serif;">
+            Paid Date: {{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}
+        </p>
+        @endif
     </div>
 </div>
 
-<div class="info-grid">
+<div class="info-grid @if($invoice->payment_status === 'paid') info-grid-full @endif">
     <div class="info-box">
         <div class="label">Invoice No.</div>
         <div class="value">{{ $invoice->invoice_number }}</div>
     </div>
     <div class="info-box">
         <div class="label">Invoice Date</div>
-        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</div>
+        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->invoice_date)->format('j-F-Y') }}</div>
     </div>
+    @if($invoice->payment_status !== 'paid')
     <div class="info-box">
         <div class="label">Due Date</div>
-        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') }}</div>
+        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->due_date)->format('j-F-Y') }}</div>
     </div>
     <div class="info-box dark">
         <div class="label">Amount Due</div>
         <div class="value">{{ number_format((float) $invoice->amount_due, 2) }} BDT</div>
     </div>
+    @endif
 </div>
 
 <div class="client-grid">
@@ -364,10 +372,18 @@
             <td class="label">Total Paid</td>
             <td>{{ number_format((float) $invoice->total_paid, 2) }}</td>
         </tr>
+        @if($invoice->paid_date)
+        <tr class="border-bottom">
+            <td class="label">Paid Date</td>
+            <td>{{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}</td>
+        </tr>
+        @endif
+        @if($invoice->payment_status !== 'paid')
         <tr>
             <td class="label strong">Amount Due</td>
             <td class="strong">{{ number_format((float) $invoice->amount_due, 2) }}</td>
         </tr>
+        @endif
   </table>
 </div>
 

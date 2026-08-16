@@ -22,6 +22,7 @@ export type InvoiceFormData = {
     invoice_number: string;
     invoice_date: string;
     due_date: string;
+    paid_date: string;
     discount_amount: string;
     tax_rate: string;
     total_paid: string;
@@ -57,6 +58,7 @@ export function invoiceToForm(
             new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .slice(0, 10),
+        paid_date: invoice?.paid_date ?? '',
         discount_amount: invoice?.discount_amount ?? '0',
         tax_rate: invoice?.tax_rate ?? '0',
         total_paid: invoice?.total_paid ?? '0',
@@ -115,6 +117,13 @@ export function InvoiceForm({
         ]);
     }
 
+    function handleStatusChange(value: string) {
+        setData('payment_status', value as InvoiceStatus);
+        if (value === 'paid' && !data.paid_date) {
+            setData('paid_date', new Date().toISOString().slice(0, 10));
+        }
+    }
+
     function removeItem(index: number) {
         if (data.items.length === 1) {
             return;
@@ -163,7 +172,7 @@ export function InvoiceForm({
                 <StatusField
                     value={data.payment_status}
                     error={errors.payment_status}
-                    onChange={(value) => setData('payment_status', value)}
+                    onChange={(value) => handleStatusChange(value)}
                 />
                 <Field
                     id="invoice_date"
@@ -181,6 +190,16 @@ export function InvoiceForm({
                     error={errors.due_date}
                     onChange={(value) => setData('due_date', value)}
                 />
+                {data.payment_status === 'paid' && (
+                    <Field
+                        id="paid_date"
+                        label="Paid Date"
+                        type="date"
+                        value={data.paid_date}
+                        error={errors.paid_date}
+                        onChange={(value) => setData('paid_date', value)}
+                    />
+                )}
                 <Field
                     id="discount_amount"
                     label="Discount"

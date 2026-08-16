@@ -1,4 +1,4 @@
-import { money, statusLabels } from '@/lib/invoice';
+import { formatDate, money, statusLabels } from '@/lib/invoice';
 import type { Invoice } from '@/types/invoice';
 
 type Props = {
@@ -10,11 +10,17 @@ export function InvoiceDocument({ invoice }: Props) {
         <div className="bg-white text-[#222]">
             <Header invoice={invoice} />
 
-            <section className="mt-6 grid grid-cols-4 gap-2.5">
+            <section
+                className={`mt-6 grid gap-2.5 ${invoice.payment_status === 'paid' ? 'grid-cols-2' : 'grid-cols-4'}`}
+            >
                 <InfoBox label="Invoice No." value={invoice.invoice_number} />
-                <InfoBox label="Invoice Date" value={invoice.invoice_date} />
-                <InfoBox label="Due Date" value={invoice.due_date} />
-                <InfoBox label="Amount Due" value={money(invoice.amount_due)} dark />
+                <InfoBox label="Invoice Date" value={formatDate(invoice.invoice_date)} />
+                {invoice.payment_status !== 'paid' && (
+                    <>
+                        <InfoBox label="Due Date" value={formatDate(invoice.due_date)} />
+                        <InfoBox label="Amount Due" value={money(invoice.amount_due)} dark />
+                    </>
+                )}
             </section>
 
             <section className="mt-6 grid gap-5 text-sm md:grid-cols-2">

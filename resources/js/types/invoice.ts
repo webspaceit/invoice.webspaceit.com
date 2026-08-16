@@ -24,6 +24,7 @@ export type Invoice = {
     invoice_number: string;
     invoice_date: string;
     due_date: string;
+    paid_date: string | null;
     subtotal: string;
     discount_amount: string;
     tax_rate: string;
@@ -34,6 +35,7 @@ export type Invoice = {
     payment_status: InvoiceStatus;
     note: string | null;
     signature: string | null;
+    payment_slip: string | null;
     signatory_designation: string | null;
     client: Client;
     items: InvoiceItem[];

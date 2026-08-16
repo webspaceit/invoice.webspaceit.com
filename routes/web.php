@@ -15,6 +15,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('clients/{client}/toggle-admin', [ClientController::class, 'toggleAdmin'])->name('clients.toggleAdmin');
     Route::resource('domains', DomainController::class)->except(['show']);
     Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+    Route::post('invoices/{invoice}/payment-slip', [InvoiceController::class, 'uploadPaymentSlip'])->name('invoices.uploadPaymentSlip');
+    Route::delete('invoices/{invoice}/payment-slip', [InvoiceController::class, 'removePaymentSlip'])->name('invoices.removePaymentSlip');
     Route::resource('invoices', InvoiceController::class);
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users', [UserController::class, 'store'])->name('users.store');

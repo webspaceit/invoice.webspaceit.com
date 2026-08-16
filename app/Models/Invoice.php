@@ -17,6 +17,7 @@ class Invoice extends Model
         'invoice_number',
         'invoice_date',
         'due_date',
+        'paid_date',
         'subtotal',
         'discount_amount',
         'tax_rate',
@@ -27,12 +28,14 @@ class Invoice extends Model
         'payment_status',
         'note',
         'signature',
+        'payment_slip',
         'signatory_designation',
     ];
 
     protected $casts = [
         'invoice_date' => 'date:Y-m-d',
         'due_date' => 'date:Y-m-d',
+        'paid_date' => 'date:Y-m-d',
         'subtotal' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'tax_rate' => 'decimal:2',

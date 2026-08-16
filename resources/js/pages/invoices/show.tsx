@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Download, Edit, Eye } from 'lucide-react';
+import { FileText, Download, Edit, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { money, statusClass, statusLabels } from '@/lib/invoice';
+import { formatDate, money, statusClass, statusLabels } from '@/lib/invoice';
 import type { Invoice } from '@/types/invoice';
 
 type Props = {
@@ -52,7 +52,9 @@ export default function ShowInvoice({ invoice }: Props) {
             <div className="grid gap-4 md:grid-cols-4">
                 <Metric label="Invoice Total" value={money(invoice.invoice_total)} />
                 <Metric label="Total Paid" value={money(invoice.total_paid)} />
-                <Metric label="Amount Due" value={money(invoice.amount_due)} />
+                {invoice.payment_status !== 'paid' && (
+                    <Metric label="Amount Due" value={money(invoice.amount_due)} />
+                )}
                 <div className="rounded-lg border bg-card p-4">
                     <div className="text-sm text-muted-foreground">Status</div>
                     <span
@@ -112,13 +114,58 @@ export default function ShowInvoice({ invoice }: Props) {
                         label="Total Paid"
                         value={money(invoice.total_paid)}
                     />
-                    <SummaryRow
-                        label="Amount Due"
-                        value={money(invoice.amount_due)}
-                        strong
-                    />
+                    {invoice.paid_date && (
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Paid Date</span>
+                            <span>{formatDate(invoice.paid_date)}</span>
+                        </div>
+                    )}
+                    {invoice.payment_status !== 'paid' && (
+                        <SummaryRow
+                            label="Amount Due"
+                            value={money(invoice.amount_due)}
+                            strong
+                        />
+                    )}
+                    {invoice.payment_slip && (
+                        <div className="flex items-center justify-between border-t pt-3 text-sm">
+                            <span className="text-muted-foreground">Payment Slip</span>
+                            <a
+                                href={`/storage/${invoice.payment_slip}`}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="inline-flex max-w-[180px] items-center gap-1.5 truncate font-medium text-primary underline-offset-4 hover:underline"
+                            >
+                                <FileText className="size-4 shrink-0" />
+                                {invoice.payment_slip.split('/').pop()}
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {invoice.payment_slip && (
+                <div className="overflow-hidden rounded-lg border bg-card">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b p-4">
+                        <h2 className="font-semibold">Payment Received Slip</h2>
+                        <Button variant="outline" size="sm" asChild>
+                            <a
+                                href={`/storage/${invoice.payment_slip}`}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
+                                <Download className="mr-2 size-4" />
+                                Open in New Tab
+                            </a>
+                        </Button>
+                    </div>
+                    <iframe
+                        src={`/storage/${invoice.payment_slip}`}
+                        title="Payment Received Slip"
+                        className="h-[600px] w-full"
+                    />
+                </div>
+            )}
         </div>
     );
 }
