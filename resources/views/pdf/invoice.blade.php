@@ -270,11 +270,6 @@
     <div class="header-right">
         <h1>INVOICE</h1>
         <p class="status">{{ ucfirst($invoice->payment_status) }}</p>
-        @if($invoice->paid_date)
-        <p style="font-size:14px; color:#0f7a18; margin:2px 0 0 0; font-family:Arial, Helvetica, sans-serif;">
-            Paid Date: {{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}
-        </p>
-        @endif
     </div>
 </div>
 
