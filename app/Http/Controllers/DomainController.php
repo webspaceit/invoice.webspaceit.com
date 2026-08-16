@@ -19,8 +19,21 @@ class DomainController extends Controller
             $query->whereIn('client_id', $clientIds);
         }
 
+        if ($q = $request->query('q')) {
+            $query->where(function ($q2) use ($q) {
+                $q2->where('domain_name', 'like', "%{$q}%")
+                    ->orWhere('hosting_provider', 'like', "%{$q}%")
+                    ->orWhere('domain_registered_email', 'like', "%{$q}%")
+                    ->orWhereHas('client', function ($client) use ($q) {
+                        $client->where('name', 'like', "%{$q}%")
+                            ->orWhere('company', 'like', "%{$q}%");
+                    });
+            });
+        }
+
         return Inertia::render('domains/index', [
-            'domains' => $query->latest()->paginate(10),
+            'domains' => $query->latest()->paginate(10)->withQueryString(),
+            'filters' => $request->only('q'),
         ]);
     }
 

@@ -23,8 +23,19 @@ class InvoiceController extends Controller
             $query->whereIn('client_id', $clientIds);
         }
 
+        if ($q = $request->query('q')) {
+            $query->where(function ($q2) use ($q) {
+                $q2->where('invoice_number', 'like', "%{$q}%")
+                    ->orWhereHas('client', function ($client) use ($q) {
+                        $client->where('name', 'like', "%{$q}%")
+                            ->orWhere('company', 'like', "%{$q}%");
+                    });
+            });
+        }
+
         return Inertia::render('invoices/index', [
-            'invoices' => $query->latest()->paginate(10),
+            'invoices' => $query->latest()->paginate(10)->withQueryString(),
+            'filters' => $request->only('q'),
         ]);
     }
 

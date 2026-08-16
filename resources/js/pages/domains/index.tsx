@@ -1,11 +1,13 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { Edit, Globe, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import TableSearch from '@/components/table-search';
 import type { Paginated } from '@/types/invoice';
 import type { Domain } from '@/types/domain';
 
 type Props = {
     domains: Paginated<Domain>;
+    filters?: { q?: string };
 };
 
 const statusClass: Record<string, string> = {
@@ -44,7 +46,7 @@ function domainBarClass(status: string) {
     return barClass[status] ?? 'bg-muted';
 }
 
-export default function DomainsIndex({ domains }: Props) {
+export default function DomainsIndex({ domains, filters }: Props) {
     const { auth } = usePage().props;
     const isAdmin = auth.user && (auth.user.role === 'super_admin' || auth.user.role === 'admin');
 
@@ -82,6 +84,11 @@ export default function DomainsIndex({ domains }: Props) {
                             {domains.data.length} domain{domains.data.length === 1 ? '' : 's'} listed
                         </p>
                     </div>
+                    <TableSearch
+                        url="/domains"
+                        initial={filters?.q ?? ''}
+                        placeholder="Search domains..."
+                    />
                 </div>
                 <div className="overflow-x-auto">
                 <table className="w-full min-w-[1240px] text-sm">

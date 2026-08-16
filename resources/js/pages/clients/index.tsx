@@ -9,14 +9,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import TableSearch from '@/components/table-search';
 import type { Client, Paginated } from '@/types/invoice';
 
 type Props = {
     clients: Paginated<Client>;
     admins: { id: number; name: string }[];
+    filters?: { q?: string };
 };
 
-export default function ClientsIndex({ clients, admins }: Props) {
+export default function ClientsIndex({ clients, admins, filters }: Props) {
     const { auth } = usePage().props;
     const isSuperAdmin = auth.user?.role === 'super_admin';
     const [openClientId, setOpenClientId] = useState<number | null>(null);
@@ -50,11 +52,18 @@ export default function ClientsIndex({ clients, admins }: Props) {
             </div>
 
             <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                <div className="border-b px-4 py-3">
-                    <h2 className="text-sm font-semibold">All Clients</h2>
-                    <p className="text-xs text-muted-foreground">
-                        {clients.data.length} client{clients.data.length === 1 ? '' : 's'} listed
-                    </p>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
+                    <div>
+                        <h2 className="text-sm font-semibold">All Clients</h2>
+                        <p className="text-xs text-muted-foreground">
+                            {clients.data.length} client{clients.data.length === 1 ? '' : 's'} listed
+                        </p>
+                    </div>
+                    <TableSearch
+                        url="/clients"
+                        initial={filters?.q ?? ''}
+                        placeholder="Search clients..."
+                    />
                 </div>
                 <div className="overflow-x-auto">
                 <table className="w-full min-w-[960px] text-sm">

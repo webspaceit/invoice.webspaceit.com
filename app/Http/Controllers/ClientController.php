@@ -22,11 +22,22 @@ class ClientController extends Controller
             $query->whereIn('id', $clientIds);
         }
 
+        if ($q = $request->query('q')) {
+            $query->where(function ($q2) use ($q) {
+                $q2->where('name', 'like', "%{$q}%")
+                    ->orWhere('company', 'like', "%{$q}%")
+                    ->orWhere('designation', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('phone', 'like', "%{$q}%");
+            });
+        }
+
         return Inertia::render('clients/index', [
-            'clients' => $query->latest()->paginate(10),
+            'clients' => $query->latest()->paginate(10)->withQueryString(),
             'admins' => $request->user()->isSuperAdmin()
                 ? User::where('role', 'admin')->orderBy('name')->get(['id', 'name'])
                 : [],
+            'filters' => $request->only('q'),
         ]);
     }
 

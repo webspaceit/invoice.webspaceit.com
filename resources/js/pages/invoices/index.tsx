@@ -15,13 +15,15 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate, money, statusClass, statusLabels } from '@/lib/invoice';
+import TableSearch from '@/components/table-search';
 import type { Invoice, InvoiceStatus, Paginated } from '@/types/invoice';
 
 type Props = {
     invoices: Paginated<Invoice>;
+    filters?: { q?: string };
 };
 
-export default function InvoicesIndex({ invoices }: Props) {
+export default function InvoicesIndex({ invoices, filters }: Props) {
     const { auth } = usePage().props;
     const isAdmin = auth.user && (auth.user.role === 'super_admin' || auth.user.role === 'admin');
     const slipInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
@@ -80,6 +82,11 @@ export default function InvoicesIndex({ invoices }: Props) {
                             {invoices.data.length} invoice{invoices.data.length === 1 ? '' : 's'} listed
                         </p>
                     </div>
+                    <TableSearch
+                        url="/invoices"
+                        initial={filters?.q ?? ''}
+                        placeholder="Search by invoice no. or client..."
+                    />
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[1240px] text-sm">
