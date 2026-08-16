@@ -1,6 +1,12 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Edit, Globe, Plus, Trash2 } from 'lucide-react';
+import { Edit, Globe, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import TableSearch from '@/components/table-search';
 import { formatDate } from '@/lib/invoice';
 import type { Paginated } from '@/types/invoice';
@@ -170,21 +176,28 @@ export default function DomainsIndex({ domains, filters }: Props) {
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     {isAdmin && (
-                                        <>
-                                            <Link
-                                                href={`/domains/${domain.id}/edit`}
-                                                className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                                            >
-                                                <Edit className="size-4" />
-                                            </Link>
-                                            <button
-                                                type="button"
-                                                onClick={() => deleteDomain(domain)}
-                                                className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-destructive"
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </button>
-                                        </>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40">
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/domains/${domain.id}/edit`}>
+                                                        <Edit className="size-4" />
+                                                        Edit
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => deleteDomain(domain)}
+                                                    className="text-destructive focus:text-destructive"
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     )}
                                 </td>
                             </tr>
