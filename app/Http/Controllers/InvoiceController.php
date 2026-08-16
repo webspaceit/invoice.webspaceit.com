@@ -6,9 +6,11 @@ use App\Models\Client;
 use App\Models\Invoice;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -230,15 +232,95 @@ class InvoiceController extends Controller
             'payment_slip' => ['required', 'file', 'max:5120', 'mimes:pdf,jpg,jpeg,png'],
         ]);
 
+        $path = $this->compressSlip($data['payment_slip']) ?? $data['payment_slip']->store('payment-slips', 'public');
+
         if ($invoice->payment_slip) {
             Storage::disk('public')->delete($invoice->payment_slip);
         }
 
         $invoice->update([
-            'payment_slip' => $data['payment_slip']->store('payment-slips', 'public'),
+            'payment_slip' => $path,
         ]);
 
         return back();
+    }
+
+    private function compressSlip(UploadedFile $file): ?string
+    {
+        if (!in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'], true)) {
+            return null;
+        }
+
+        $image = match ($file->getMimeType()) {
+            'image/jpeg' => @imagecreatefromjpeg($file->getRealPath()),
+            'image/png' => @imagecreatefrompng($file->getRealPath()),
+            default => null,
+        };
+
+        if (!$image) {
+            return null;
+        }
+
+        if ($file->getMimeType() === 'image/jpeg' && function_exists('exif_read_data')) {
+            $orientation = @exif_read_data($file->getRealPath())['Orientation'] ?? 1;
+            $image = $this->fixImageOrientation($image, $orientation);
+        }
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $maxDim = 2000;
+
+        if (max($width, $height) > $maxDim) {
+            $scale = $maxDim / max($width, $height);
+            $newWidth = (int) round($width * $scale);
+            $newHeight = (int) round($height * $scale);
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($image);
+            $image = $resized;
+        }
+
+        ob_start();
+        imagejpeg($image, null, 82);
+        $encoded = ob_get_clean();
+        imagedestroy($image);
+
+        if (!$encoded) {
+            return null;
+        }
+
+        $name = 'payment-slips/' . Str::random(40) . '.jpg';
+        Storage::disk('public')->put($name, $encoded);
+
+        return $name;
+    }
+
+    private function fixImageOrientation($image, int $orientation)
+    {
+        switch ($orientation) {
+            case 2:
+                imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 3:
+                return imagerotate($image, 180, 0);
+            case 4:
+                imageflip($image, IMG_FLIP_VERTICAL);
+                break;
+            case 5:
+                imageflip($image, IMG_FLIP_BOTH);
+
+                return imagerotate($image, 90, 0);
+            case 6:
+                return imagerotate($image, -90, 0);
+            case 7:
+                imageflip($image, IMG_FLIP_BOTH);
+
+                return imagerotate($image, -90, 0);
+            case 8:
+                return imagerotate($image, 90, 0);
+        }
+
+        return $image;
     }
 
     public function removePaymentSlip(Request $request, Invoice $invoice)
