@@ -106,6 +106,8 @@
         font-size: 20px;
         font-weight: 600;
         font-family: Arial, Helvetica, sans-serif;
+        line-height: 20px;
+    
     }
     .client-grid {
         display: table;
@@ -122,7 +124,7 @@
     .client-box {
         border: 1px solid #ddd;
         border-top: none;
-        padding: 12px 16px;
+        padding: 5px 10px;
         font-size: 13px;
         line-height: 1.1;
         font-family: Arial, Helvetica, sans-serif;
@@ -169,9 +171,8 @@
         font-size: 17px;
 		line-height:20px;
     }
-    .totals-table td.label { text-align: left; padding: 4px 6px; }
-    .totals-table tr.border-bottom td { border-bottom: 1px solid #eee; font-size:15px; }<br>
-	 tr.border-bottom td.label{ 
+    .totals-table td.label { text-align: left; padding: 2px 2px; }
+    .totals-table tr.border-bottom td { border-bottom: 1px solid #eee; font-size:15px; }
     .totals-table .strong {
         font-weight: 700;
         color: #032f44;
@@ -371,7 +372,7 @@
             <td>{{ number_format((float) $invoice->tax_amount, 2) }}</td>
         </tr>
         <tr class="border-bottom">
-            <td class="label strong">Invoice Total</td>
+            <td class="label strong"><b>Invoice Total</b></td>
             <td class="strong">{{ number_format((float) $invoice->invoice_total, 2) }}</td>
         </tr>
         <tr class="border-bottom">
@@ -408,8 +409,9 @@
 <div class="footer">
     <div class="col caddress">
         <div class="semibold">Corporate Address:</div>
-        <div>Web Space IT, House: 04, Road: 08, Block: L, Eastern Housing, Pallabi, Dhaka-1216, Bangladesh.</div>
-        <div>Mobile: +88 01797476242, +88 01712974550</div>
+        <div><b>Web Space IT</b></div>
+        <div>House: 04, Road: 08, Block: L, Eastern Housing, Pallabi, Dhaka-1216.</div>
+        <div>Mobile: +8801797476242, +8801712974550</div>
         <div>Email: info@webspaceit.com, webspaceit@gmail.com</div>
         <div>Web: www.webspaceit.com</div>
     </div>
