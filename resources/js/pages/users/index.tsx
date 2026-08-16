@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router, usePage, useForm } from '@inertiajs/react';
-import { ChevronDown, Shield, Trash2, UserCog, UserPlus } from 'lucide-react';
+import { ChevronDown, Shield, Trash2, UserCog, UserPlus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,23 @@ const roleLabels: Record<string, string> = {
     admin: 'Admin',
     client: 'Client',
 };
+
+const roleClass: Record<string, string> = {
+    super_admin: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-200',
+    admin: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200',
+    client: 'bg-muted text-muted-foreground',
+};
+
+function RoleBadge({ role }: { role: string }) {
+    return (
+        <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${roleClass[role] ?? 'bg-muted text-muted-foreground'}`}
+        >
+            <span className="size-1.5 rounded-full bg-current" />
+            {roleLabels[role] ?? role}
+        </span>
+    );
+}
 
 export default function UsersIndex({ users, clients }: Props) {
     const { auth } = usePage().props;
@@ -137,31 +154,48 @@ export default function UsersIndex({ users, clients }: Props) {
                 )}
             </div>
 
-            <div className="rounded-lg border bg-card">
-                <table className="w-full">
-                    <thead className="bg-muted">
-                        <tr>
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Email</th>
-                            <th className="p-3 text-left">Role</th>
-                            {isSuperAdmin && <th className="p-3 text-left">Assigned Clients</th>}
-                            {isSuperAdmin && <th className="p-3 text-right">Change Role</th>}
-                            {isSuperAdmin && <th className="p-3 text-right"></th>}
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="border-b px-4 py-3">
+                    <h2 className="text-sm font-semibold">All Users</h2>
+                    <p className="text-xs text-muted-foreground">
+                        {users.data.length} user{users.data.length === 1 ? '' : 's'} listed
+                    </p>
+                </div>
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[900px] text-sm">
+                    <thead>
+                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                            <th className="px-4 py-3 font-semibold">Name</th>
+                            <th className="px-4 py-3 font-semibold">Email</th>
+                            <th className="px-4 py-3 font-semibold">Role</th>
+                            {isSuperAdmin && <th className="px-4 py-3 font-semibold">Assigned Clients</th>}
+                            {isSuperAdmin && <th className="px-4 py-3 text-right font-semibold">Change Role</th>}
+                            {isSuperAdmin && <th className="px-4 py-3 text-right font-semibold"></th>}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                        {users.data.length === 0 && (
+                            <tr>
+                                <td colSpan={isSuperAdmin ? 6 : 3} className="px-4 py-14 text-center text-muted-foreground">
+                                    <Users className="mx-auto mb-2 size-8 text-muted-foreground/40" />
+                                    No users found yet.
+                                </td>
+                            </tr>
+                        )}
                         {users.data.map((user) => (
-                            <tr key={user.id} className="border-t">
-                                <td className="p-3 font-medium">
+                            <tr key={user.id} className="transition-colors hover:bg-muted/40">
+                                <td className="px-4 py-3 font-medium">
                                     <div className="flex items-center gap-2">
                                         <UserCog className="size-4 text-muted-foreground" />
                                         {user.name}
                                     </div>
                                 </td>
-                                <td className="p-3 text-muted-foreground">{user.email}</td>
-                                <td className="p-3">{roleLabels[user.role] ?? user.role}</td>
+                                <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+                                <td className="px-4 py-3">
+                                    <RoleBadge role={user.role} />
+                                </td>
                                 {isSuperAdmin && (
-                                    <td className="p-3">
+                                    <td className="px-4 py-3">
                                         {user.role === 'client' ? (
                                             <div className="relative">
                                                 <Button
@@ -210,7 +244,7 @@ export default function UsersIndex({ users, clients }: Props) {
                                     </td>
                                 )}
                                 {isSuperAdmin && (
-                                    <td className="p-3 text-right">
+                                    <td className="px-4 py-3 text-right">
                                         {user.role !== 'super_admin' ? (
                                             <Select
                                                 value={user.role}
@@ -233,7 +267,7 @@ export default function UsersIndex({ users, clients }: Props) {
                                     </td>
                                 )}
                                 {isSuperAdmin && user.role !== 'super_admin' && (
-                                    <td className="p-3 text-right">
+                                    <td className="px-4 py-3 text-right">
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -252,6 +286,7 @@ export default function UsersIndex({ users, clients }: Props) {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );

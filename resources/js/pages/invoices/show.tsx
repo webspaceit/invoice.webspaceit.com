@@ -66,33 +66,35 @@ export default function ShowInvoice({ invoice }: Props) {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-                <div className="overflow-hidden rounded-lg border bg-card">
-                    <table className="w-full min-w-[700px]">
-                        <thead className="bg-muted">
-                            <tr>
-                                <th className="p-3 text-left">No.</th>
-                                <th className="p-3 text-left">Description</th>
-                                <th className="p-3 text-right">Amount</th>
-                                <th className="p-3 text-right">Qty.</th>
-                                <th className="p-3 text-right">Total</th>
+                <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                    <div className="overflow-x-auto">
+                    <table className="w-full min-w-[700px] text-sm">
+                        <thead>
+                            <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                                <th className="px-4 py-3 font-semibold">No.</th>
+                                <th className="px-4 py-3 font-semibold">Description</th>
+                                <th className="px-4 py-3 text-right font-semibold">Amount</th>
+                                <th className="px-4 py-3 text-right font-semibold">Qty.</th>
+                                <th className="px-4 py-3 text-right font-semibold">Total</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
                             {invoice.items.map((item, index) => (
-                                <tr key={item.id ?? index} className="border-t">
-                                    <td className="p-3">{index + 1}</td>
-                                    <td className="p-3">{item.description}</td>
-                                    <td className="p-3 text-right">
+                                <tr key={item.id ?? index} className="transition-colors hover:bg-muted/40">
+                                    <td className="px-4 py-3">{index + 1}</td>
+                                    <td className="px-4 py-3">{item.description}</td>
+                                    <td className="px-4 py-3 text-right tabular-nums">
                                         {money(item.unit_amount)}
                                     </td>
-                                    <td className="p-3 text-right">{item.quantity}</td>
-                                    <td className="p-3 text-right font-medium">
+                                    <td className="px-4 py-3 text-right tabular-nums">{item.quantity}</td>
+                                    <td className="px-4 py-3 text-right font-medium tabular-nums">
                                         {money(item.line_total!)}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 <div className="space-y-3 rounded-lg border bg-card p-4">

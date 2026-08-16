@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown, Edit, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, Edit, Plus, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { Client, Paginated } from '@/types/invoice';
@@ -43,34 +43,49 @@ export default function ClientsIndex({ clients, admins }: Props) {
                 </Button>
             </div>
 
-            <div className="rounded-lg border bg-card">
-                <table className="w-full min-w-[760px]">
-                    <thead className="bg-muted">
-                        <tr>
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Company</th>
-                            <th className="p-3 text-left">Designation</th>
-                            <th className="p-3 text-left">Contact</th>
-                            <th className="p-3 text-left">Invoices</th>
-                            {isSuperAdmin && <th className="p-3 text-left">Assigned Admins</th>}
-                            <th className="p-3 text-right">Actions</th>
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="border-b px-4 py-3">
+                    <h2 className="text-sm font-semibold">All Clients</h2>
+                    <p className="text-xs text-muted-foreground">
+                        {clients.data.length} client{clients.data.length === 1 ? '' : 's'} listed
+                    </p>
+                </div>
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[960px] text-sm">
+                    <thead>
+                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                            <th className="px-4 py-3 font-semibold">Name</th>
+                            <th className="px-4 py-3 font-semibold">Company</th>
+                            <th className="px-4 py-3 font-semibold">Designation</th>
+                            <th className="px-4 py-3 font-semibold">Contact</th>
+                            <th className="px-4 py-3 font-semibold">Invoices</th>
+                            {isSuperAdmin && <th className="px-4 py-3 font-semibold">Assigned Admins</th>}
+                            <th className="px-4 py-3 text-right font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                        {clients.data.length === 0 && (
+                            <tr>
+                                <td colSpan={isSuperAdmin ? 7 : 6} className="px-4 py-14 text-center text-muted-foreground">
+                                    <Users className="mx-auto mb-2 size-8 text-muted-foreground/40" />
+                                    No clients found yet.
+                                </td>
+                            </tr>
+                        )}
                         {clients.data.map((client) => {
                             const assignedIds = (client.users ?? []).map((u) => u.id);
                             return (
-                                <tr key={client.id} className="border-t">
-                                    <td className="p-3 font-medium">{client.name}</td>
-                                    <td className="p-3">{client.company ?? '-'}</td>
-                                    <td className="p-3">{client.designation ?? '-'}</td>
-                                    <td className="p-3 text-sm text-muted-foreground">
+                                <tr key={client.id} className="transition-colors hover:bg-muted/40">
+                                    <td className="px-4 py-3 font-medium">{client.name}</td>
+                                    <td className="px-4 py-3">{client.company ?? '-'}</td>
+                                    <td className="px-4 py-3">{client.designation ?? '-'}</td>
+                                    <td className="px-4 py-3 text-sm text-muted-foreground">
                                         <div>{client.email ?? '-'}</div>
                                         <div>{client.phone ?? ''}</div>
                                     </td>
-                                    <td className="p-3">{client.invoices_count ?? 0}</td>
+                                    <td className="px-4 py-3">{client.invoices_count ?? 0}</td>
                                     {isSuperAdmin && (
-                                        <td className="p-3">
+                                        <td className="px-4 py-3">
                                             <div className="relative">
                                                 <Button
                                                     variant="outline"
@@ -112,7 +127,7 @@ export default function ClientsIndex({ clients, admins }: Props) {
                                             </div>
                                         </td>
                                     )}
-                                    <td className="p-3 text-right">
+                                    <td className="px-4 py-3 text-right">
                                         <Button variant="ghost" size="sm" asChild>
                                             <Link href={`/clients/${client.id}/edit`}>
                                                 <Edit className="mr-2 size-4" />
@@ -134,6 +149,7 @@ export default function ClientsIndex({ clients, admins }: Props) {
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );

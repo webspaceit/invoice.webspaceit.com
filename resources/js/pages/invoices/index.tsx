@@ -15,7 +15,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate, money, statusClass, statusLabels } from '@/lib/invoice';
-import type { Invoice, Paginated } from '@/types/invoice';
+import type { Invoice, InvoiceStatus, Paginated } from '@/types/invoice';
 
 type Props = {
     invoices: Paginated<Invoice>;
@@ -72,60 +72,89 @@ export default function InvoicesIndex({ invoices }: Props) {
                 )}
             </div>
 
-            <div className="overflow-hidden rounded-lg border bg-card">
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
+                    <div>
+                        <h2 className="text-sm font-semibold">All Invoices</h2>
+                        <p className="text-xs text-muted-foreground">
+                            {invoices.data.length} invoice{invoices.data.length === 1 ? '' : 's'} listed
+                        </p>
+                    </div>
+                </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1240px]">
-                        <thead className="bg-muted">
-                            <tr>
-                                <th className="p-3 text-left">Invoice</th>
-                                <th className="p-3 text-left">Client</th>
-                                <th className="p-3 text-left">Due Date</th>
-                                <th className="p-3 text-left">Status</th>
-                                <th className="p-3 text-left">Paid Date</th>
-                                <th className="p-3 text-left">Payment Method</th>
-                                <th className="p-3 text-right">Actual Paid</th>
-                                <th className="p-3 text-left">Payment Slip</th>
-                                <th className="p-3 text-right">Total</th>
-                                <th className="p-3 text-right">Paid</th>
-                                <th className="p-3 text-right">Due</th>
-                                <th className="p-3 text-right">Actions</th>
+                    <table className="w-full min-w-[1240px] text-sm">
+                        <thead>
+                            <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                                <th className="px-4 py-3 font-semibold">Invoice</th>
+                                <th className="px-4 py-3 font-semibold">Client</th>
+                                <th className="px-4 py-3 font-semibold">Due Date</th>
+                                <th className="px-4 py-3 font-semibold">Status</th>
+                                <th className="px-4 py-3 font-semibold">Paid Date</th>
+                                <th className="px-4 py-3 font-semibold">Payment Method</th>
+                                <th className="px-4 py-3 text-right font-semibold">Actual Paid</th>
+                                <th className="px-4 py-3 font-semibold">Payment Slip</th>
+                                <th className="px-4 py-3 text-right font-semibold">Total</th>
+                                <th className="px-4 py-3 text-right font-semibold">Paid</th>
+                                <th className="px-4 py-3 text-right font-semibold">Due</th>
+                                <th className="px-4 py-3 text-right font-semibold">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {invoices.data.map((invoice) => (
-                                <tr key={invoice.id} className="border-t">
-                                    <td className="p-3 font-medium">
-                                        {invoice.invoice_number}
+                        <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                            {invoices.data.length === 0 && (
+                                <tr>
+                                    <td colSpan={12} className="px-4 py-14 text-center text-muted-foreground">
+                                        <FileText className="mx-auto mb-2 size-8 text-muted-foreground/40" />
+                                        No invoices found yet.
                                     </td>
-                                    <td className="p-3">
-                                        <div>{invoice.client.name}</div>
-                                        <div className="text-sm text-muted-foreground">
+                                </tr>
+                            )}
+                            {invoices.data.map((invoice) => (
+                                <tr key={invoice.id} className="transition-colors hover:bg-muted/40">
+                                    <td className="relative py-3 pl-5 pr-4">
+                                        <span
+                                            className={`pointer-events-none absolute inset-y-0 left-0 w-1 ${statusBarClass(invoice.payment_status)}`}
+                                        />
+                                        <Link
+                                            href={`/invoices/${invoice.id}`}
+                                            className="font-mono text-[13px] font-semibold text-foreground transition-colors hover:text-primary"
+                                        >
+                                            {invoice.invoice_number}
+                                        </Link>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-medium">{invoice.client.name}</div>
+                                        <div className="text-xs text-muted-foreground">
                                             {invoice.client.company ?? ''}
                                         </div>
                                     </td>
-                                    <td className="p-3">
+                                    <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                                         {invoice.payment_status === 'paid'
                                             ? '—'
                                             : formatDate(invoice.due_date)}
                                     </td>
-                                    <td className="p-3">
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(invoice.payment_status)}`}
-                                        >
-                                            {statusLabels[invoice.payment_status]}
-                                        </span>
+                                    <td className="px-4 py-3">
+                                        <StatusBadge status={invoice.payment_status} />
                                     </td>
-                                    <td className="p-3">{formatDate(invoice.paid_date) || '—'}</td>
-                                    <td className="p-3">
-                                        {invoice.payment_method ?? '—'}
+                                    <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                                        {formatDate(invoice.paid_date) || '—'}
                                     </td>
-                                    <td className="p-3 text-right">
+                                    <td className="px-4 py-3">
+                                        {invoice.payment_method ? (
+                                            <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                                                <span className="size-1.5 rounded-full bg-emerald-500" />
+                                                {invoice.payment_method}
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted-foreground">—</span>
+                                        )}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-muted-foreground">
                                         {invoice.payment_status === 'paid' &&
                                             invoice.actual_paid_amount !== null
                                             ? money(invoice.actual_paid_amount)
                                             : '—'}
                                     </td>
-                                    <td className="p-3">
+                                    <td className="px-4 py-3">
                                         <input
                                             ref={(el) => {
                                                 slipInputRefs.current[invoice.id] = el;
@@ -185,18 +214,20 @@ export default function InvoicesIndex({ invoices }: Props) {
                                             <span className="text-muted-foreground">—</span>
                                         )}
                                     </td>
-                                    <td className="p-3 text-right">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums">
                                         {money(invoice.invoice_total)}
                                     </td>
-                                    <td className="p-3 text-right">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-muted-foreground">
                                         {money(invoice.total_paid)}
                                     </td>
-                                    <td className="p-3 text-right font-medium">
+                                    <td
+                                        className={`whitespace-nowrap px-4 py-3 text-right font-semibold tabular-nums ${amountDueClass(invoice.payment_status)}`}
+                                    >
                                         {invoice.payment_status === 'paid'
                                             ? '—'
                                             : money(invoice.amount_due)}
                                     </td>
-                                    <td className="p-3 text-right">
+                                    <td className="px-4 py-3 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
@@ -261,4 +292,43 @@ export default function InvoicesIndex({ invoices }: Props) {
             </Dialog>
         </div>
     );
+}
+
+function StatusBadge({ status }: { status: InvoiceStatus }) {
+    return (
+        <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(status)}`}
+        >
+            <span className="size-1.5 rounded-full bg-current" />
+            {statusLabels[status]}
+        </span>
+    );
+}
+
+function statusBarClass(status: InvoiceStatus) {
+    switch (status) {
+        case 'draft':
+            return 'bg-slate-400';
+        case 'unpaid':
+            return 'bg-amber-500';
+        case 'partial':
+            return 'bg-sky-500';
+        case 'paid':
+            return 'bg-emerald-500';
+        case 'overdue':
+            return 'bg-red-500';
+    }
+}
+
+function amountDueClass(status: InvoiceStatus) {
+    switch (status) {
+        case 'overdue':
+            return 'text-red-600 dark:text-red-400';
+        case 'unpaid':
+            return 'text-amber-600 dark:text-amber-400';
+        case 'partial':
+            return 'text-sky-600 dark:text-sky-400';
+        default:
+            return 'text-foreground';
+    }
 }

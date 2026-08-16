@@ -15,6 +15,35 @@ const statusClass: Record<string, string> = {
     expiring_soon: 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200',
 };
 
+const statusLabels: Record<string, string> = {
+    active: 'Active',
+    expired: 'Expired',
+    pending: 'Pending',
+    expiring_soon: 'Expiring Soon',
+};
+
+const barClass: Record<string, string> = {
+    active: 'bg-emerald-500',
+    expired: 'bg-red-500',
+    pending: 'bg-amber-500',
+    expiring_soon: 'bg-orange-500',
+};
+
+function StatusBadge({ status }: { status: string }) {
+    return (
+        <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusClass[status] ?? 'bg-muted text-muted-foreground'}`}
+        >
+            <span className="size-1.5 rounded-full bg-current" />
+            {statusLabels[status] ?? status}
+        </span>
+    );
+}
+
+function domainBarClass(status: string) {
+    return barClass[status] ?? 'bg-muted';
+}
+
 export default function DomainsIndex({ domains }: Props) {
     const { auth } = usePage().props;
     const isAdmin = auth.user && (auth.user.role === 'super_admin' || auth.user.role === 'admin');
@@ -45,32 +74,52 @@ export default function DomainsIndex({ domains }: Props) {
                 )}
             </div>
 
-            <div className="overflow-hidden rounded-lg border bg-card">
-                <table className="w-full min-w-[760px]">
-                    <thead className="bg-muted">
-                        <tr>
-                            <th className="p-3 text-left">Domain Name</th>
-                            <th className="p-3 text-left">Registrar</th>
-                            <th className="p-3 text-left">Client</th>
-                            <th className="p-3 text-left">Provider</th>
-                            <th className="p-3 text-left">Domain Registered</th>
-                            <th className="p-3 text-left">Domain Expires</th>
-                            <th className="p-3 text-left">Hosting Registered</th>
-                            <th className="p-3 text-left">Hosting Expires</th>
-                            <th className="p-3 text-left">Status</th>
-                            <th className="p-3 text-right">Actions</th>
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3">
+                    <div>
+                        <h2 className="text-sm font-semibold">All Domains</h2>
+                        <p className="text-xs text-muted-foreground">
+                            {domains.data.length} domain{domains.data.length === 1 ? '' : 's'} listed
+                        </p>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[1240px] text-sm">
+                    <thead>
+                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                            <th className="px-4 py-3 font-semibold">Domain Name</th>
+                            <th className="px-4 py-3 font-semibold">Registrar</th>
+                            <th className="px-4 py-3 font-semibold">Client</th>
+                            <th className="px-4 py-3 font-semibold">Provider</th>
+                            <th className="px-4 py-3 font-semibold">Domain Registered</th>
+                            <th className="px-4 py-3 font-semibold">Domain Expires</th>
+                            <th className="px-4 py-3 font-semibold">Hosting Registered</th>
+                            <th className="px-4 py-3 font-semibold">Hosting Expires</th>
+                            <th className="px-4 py-3 font-semibold">Status</th>
+                            <th className="px-4 py-3 text-right font-semibold">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                        {domains.data.length === 0 && (
+                            <tr>
+                                <td colSpan={10} className="px-4 py-14 text-center text-muted-foreground">
+                                    <Globe className="mx-auto mb-2 size-8 text-muted-foreground/40" />
+                                    No domains found yet.
+                                </td>
+                            </tr>
+                        )}
                         {domains.data.map((domain) => (
-                            <tr key={domain.id} className="border-t">
-                                <td className="p-3 font-medium">
+                            <tr key={domain.id} className="transition-colors hover:bg-muted/40">
+                                <td className="relative py-3 pl-5 pr-4 font-medium">
+                                    <span
+                                        className={`pointer-events-none absolute inset-y-0 left-0 w-1 ${domainBarClass(domain.computed_status)}`}
+                                    />
                                     <div className="flex items-center gap-2">
                                         <Globe className="size-4 text-muted-foreground" />
                                         {domain.domain_name}
                                     </div>
                                 </td>
-                                <td className="p-3 text-sm">
+                                <td className="px-4 py-3 text-sm">
                                     <div className="space-y-0.5">
                                         <div>{domain.domain_registered_email ?? '-'}</div>
                                         {domain.domain_registrar_link ? (
@@ -85,7 +134,7 @@ export default function DomainsIndex({ domains }: Props) {
                                         ) : null}
                                     </div>
                                 </td>
-                                <td className="p-3">
+                                <td className="px-4 py-3">
                                     {domain.client ? (
                                         <div className="space-y-0.5">
                                             <div className="font-medium">{domain.client.name}</div>
@@ -101,21 +150,15 @@ export default function DomainsIndex({ domains }: Props) {
                                         </div>
                                     ) : '-'}
                                 </td>
-                                <td className="p-3">{domain.hosting_provider ?? '-'}</td>
-                                <td className="p-3">{domain.registration_date}</td>
-                                <td className="p-3">{domain.expiry_date}</td>
-                                <td className="p-3">{domain.hosting_registration_date ?? '-'}</td>
-                                <td className="p-3">{domain.hosting_expiry_date ?? '-'}</td>
-                                <td className="p-3">
-                                    <span
-                                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass[domain.computed_status]}`}
-                                    >
-                                        {domain.computed_status === 'expiring_soon'
-                                            ? 'Expiring Soon'
-                                            : domain.computed_status.charAt(0).toUpperCase() + domain.computed_status.slice(1)}
-                                    </span>
+                                <td className="px-4 py-3">{domain.hosting_provider ?? '-'}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{domain.registration_date}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{domain.expiry_date}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{domain.hosting_registration_date ?? '-'}</td>
+                                <td className="whitespace-nowrap px-4 py-3">{domain.hosting_expiry_date ?? '-'}</td>
+                                <td className="px-4 py-3">
+                                    <StatusBadge status={domain.computed_status} />
                                 </td>
-                                <td className="p-3 text-right">
+                                <td className="px-4 py-3 text-right">
                                     {isAdmin && (
                                         <>
                                             <Link
@@ -138,6 +181,7 @@ export default function DomainsIndex({ domains }: Props) {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );

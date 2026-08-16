@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { FileText } from 'lucide-react';
 import { money, statusClass, statusLabels } from '@/lib/invoice';
 import { dashboard } from '@/routes';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
@@ -43,44 +44,51 @@ export default function Dashboard({
                 </div>
 
                 <div className="grid gap-6 xl:grid-cols-[1fr_200px]">
-                    <div className="overflow-hidden rounded-lg border bg-card">
-                        <div className="border-b p-4">
-                            <h2 className="font-semibold">Recent Invoices</h2>
+                    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                        <div className="border-b px-4 py-3">
+                            <h2 className="text-sm font-semibold">Recent Invoices</h2>
+                            <p className="text-xs text-muted-foreground">
+                                {recentInvoices.length} invoice{recentInvoices.length === 1 ? '' : 's'} listed
+                            </p>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-muted">
-                                    <tr>
-                                        <th className="p-3 text-left">Invoice</th>
-                                        <th className="p-3 text-left">Client</th>
-                                        <th className="p-3 text-left">Status</th>
-                                        <th className="p-3 text-right">Total</th>
-                                        <th className="p-3 text-right">Due</th>
+                            <table className="w-full min-w-[640px] text-sm">
+                                <thead>
+                                    <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                                        <th className="px-4 py-3 font-semibold">Invoice</th>
+                                        <th className="px-4 py-3 font-semibold">Client</th>
+                                        <th className="px-4 py-3 font-semibold">Status</th>
+                                        <th className="px-4 py-3 text-right font-semibold">Total</th>
+                                        <th className="px-4 py-3 text-right font-semibold">Due</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                                    {recentInvoices.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-4 py-14 text-center text-muted-foreground">
+                                                <FileText className="mx-auto mb-2 size-8 text-muted-foreground/40" />
+                                                No invoices found yet.
+                                            </td>
+                                        </tr>
+                                    )}
                                     {recentInvoices.map((invoice) => (
-                                        <tr key={invoice.id} className="border-t">
-                                            <td className="p-3 font-medium">
+                                        <tr key={invoice.id} className="transition-colors hover:bg-muted/40">
+                                            <td className="px-4 py-3 font-medium">
                                                 <Link
                                                     href={`/invoices/${invoice.id}`}
-                                                    className="text-blue-700 hover:underline dark:text-blue-300"
+                                                    className="font-mono text-[13px] font-semibold text-foreground transition-colors hover:text-primary"
                                                 >
                                                     {invoice.invoice_number}
                                                 </Link>
                                             </td>
-                                            <td className="p-3">{invoice.client.name}</td>
-                                            <td className="p-3">
-                                                <span
-                                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(invoice.payment_status)}`}
-                                                >
-                                                    {statusLabels[invoice.payment_status]}
-                                                </span>
+                                            <td className="px-4 py-3">{invoice.client.name}</td>
+                                            <td className="px-4 py-3">
+                                                <StatusBadge status={invoice.payment_status} />
                                             </td>
-                                            <td className="p-3 text-right">
+                                            <td className="px-4 py-3 text-right tabular-nums">
                                                 {money(invoice.invoice_total)}
                                             </td>
-                                            <td className="p-3 text-right font-medium">
+                                            <td className="px-4 py-3 text-right font-medium tabular-nums">
                                                 {money(invoice.amount_due)}
                                             </td>
                                         </tr>
@@ -120,6 +128,17 @@ function Metric({ label, value }: { label: string; value: string | number }) {
             <div className="text-sm text-muted-foreground">{label}</div>
             <div className="mt-2 text-2xl font-semibold">{value}</div>
         </div>
+    );
+}
+
+function StatusBadge({ status }: { status: InvoiceStatus }) {
+    return (
+        <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(status)}`}
+        >
+            <span className="size-1.5 rounded-full bg-current" />
+            {statusLabels[status]}
+        </span>
     );
 }
 
