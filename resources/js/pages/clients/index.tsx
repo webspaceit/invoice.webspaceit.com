@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown, Edit, Plus, Trash2, Users } from 'lucide-react';
+import { ChevronDown, Edit, MoreHorizontal, Plus, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { Client, Paginated } from '@/types/invoice';
 
 type Props = {
@@ -128,21 +134,28 @@ export default function ClientsIndex({ clients, admins }: Props) {
                                         </td>
                                     )}
                                     <td className="px-4 py-3 text-right">
-                                        <Button variant="ghost" size="sm" asChild>
-                                            <Link href={`/clients/${client.id}/edit`}>
-                                                <Edit className="mr-2 size-4" />
-                                                Edit
-                                            </Link>
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => deleteClient(client)}
-                                            className="text-destructive hover:text-destructive"
-                                        >
-                                            <Trash2 className="mr-2 size-4" />
-                                            Delete
-                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40">
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={`/clients/${client.id}/edit`}>
+                                                        <Edit className="size-4" />
+                                                        Edit
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => deleteClient(client)}
+                                                    className="text-destructive focus:text-destructive"
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </td>
                                 </tr>
                             );
