@@ -376,12 +376,6 @@
             <td class="label">Total Paid</td>
             <td>{{ number_format((float) $invoice->total_paid, 2) }}</td>
         </tr>
-        @if($invoice->paid_date)
-        <tr class="border-bottom">
-            <td class="label">Paid Date</td>
-            <td>{{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}</td>
-        </tr>
-        @endif
         @if($invoice->payment_method && $invoice->payment_method !== 'Cheque')
         <tr class="border-bottom">
             <td class="label">Payment Method</td>
