@@ -378,13 +378,13 @@
             <td>{{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}</td>
         </tr>
         @endif
-        @if($invoice->payment_method)
+        @if($invoice->payment_method && $invoice->payment_method !== 'Cheque')
         <tr class="border-bottom">
             <td class="label">Payment Method</td>
             <td>{{ $invoice->payment_method }}</td>
         </tr>
         @endif
-        @if($invoice->actual_paid_amount !== null)
+        @if($invoice->actual_paid_amount !== null && $invoice->payment_method !== 'Cheque')
         <tr class="border-bottom">
             <td class="label">Actual Payment Received</td>
             <td>{{ number_format((float) $invoice->actual_paid_amount, 2) }}</td>
