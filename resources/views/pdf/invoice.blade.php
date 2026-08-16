@@ -278,7 +278,7 @@
     </div>
 </div>
 
-<div class="info-grid @if($invoice->payment_status === 'paid') info-grid-full @endif">
+<div class="info-grid">
     <div class="info-box">
         <div class="label">Invoice No.</div>
         <div class="value">{{ $invoice->invoice_number }}</div>
@@ -287,7 +287,16 @@
         <div class="label">Invoice Date</div>
         <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->invoice_date)->format('j-F-Y') }}</div>
     </div>
-    @if($invoice->payment_status !== 'paid')
+    @if($invoice->payment_status === 'paid')
+    <div class="info-box">
+        <div class="label">Payment Date</div>
+        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('j-F-Y') }}</div>
+    </div>
+    <div class="info-box">
+        <div class="label">Payment Method</div>
+        <div class="value">{{ $invoice->payment_method ?? '—' }}</div>
+    </div>
+    @else
     <div class="info-box">
         <div class="label">Due Date</div>
         <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->due_date)->format('j-F-Y') }}</div>
