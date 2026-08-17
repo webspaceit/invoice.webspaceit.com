@@ -7,6 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Pagination from '@/components/pagination';
 import TableSearch from '@/components/table-search';
 import { formatDateShort } from '@/lib/invoice';
 import type { Paginated } from '@/types/invoice';
@@ -88,7 +89,7 @@ export default function DomainsIndex({ domains, filters }: Props) {
                     <div>
                         <h2 className="text-sm font-semibold">All Domains</h2>
                         <p className="text-xs text-muted-foreground">
-                            {domains.data.length} domain{domains.data.length === 1 ? '' : 's'} listed
+                            {domains.total} domain{domains.total === 1 ? '' : 's'} total
                         </p>
                     </div>
                     <TableSearch
@@ -205,6 +206,7 @@ export default function DomainsIndex({ domains, filters }: Props) {
                     </tbody>
                 </table>
                 </div>
+                <Pagination paginated={domains} />
             </div>
         </div>
     );
