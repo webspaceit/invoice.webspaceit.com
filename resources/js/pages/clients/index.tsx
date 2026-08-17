@@ -70,6 +70,7 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                 <table className="w-full min-w-[960px] text-sm">
                     <thead>
                         <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
+                            <th className="px-4 py-3 font-semibold">Sl.</th>
                             <th className="px-4 py-3 font-semibold">Name</th>
                             <th className="px-4 py-3 font-semibold">Company</th>
                             <th className="px-4 py-3 font-semibold">Designation</th>
@@ -82,16 +83,17 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                     <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
                         {clients.data.length === 0 && (
                             <tr>
-                                <td colSpan={isSuperAdmin ? 7 : 6} className="px-4 py-14 text-center text-muted-foreground">
+                                <td colSpan={isSuperAdmin ? 8 : 7} className="px-4 py-14 text-center text-muted-foreground">
                                     <Users className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                     No clients found yet.
                                 </td>
                             </tr>
                         )}
-                        {clients.data.map((client) => {
+                        {clients.data.map((client, index) => {
                             const assignedIds = (client.users ?? []).map((u) => u.id);
                             return (
                                 <tr key={client.id} className="transition-colors hover:bg-muted/40">
+                                    <td className="px-4 py-3 text-muted-foreground">{(clients.current_page - 1) * clients.per_page + index + 1}</td>
                                     <td className="px-4 py-3 font-medium">{client.name}</td>
                                     <td className="px-4 py-3">{client.company ?? '-'}</td>
                                     <td className="px-4 py-3">{client.designation ?? '-'}</td>
