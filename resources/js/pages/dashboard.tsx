@@ -17,12 +17,14 @@ type Props = {
         total: number;
     }[];
     recentInvoices: Invoice[];
+    isSuperAdmin: boolean;
 };
 
 export default function Dashboard({
     summary,
     statusBreakdown,
     recentInvoices,
+    isSuperAdmin,
 }: Props) {
     return (
         <>
