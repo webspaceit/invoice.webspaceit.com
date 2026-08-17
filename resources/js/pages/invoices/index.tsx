@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate, money, statusClass, statusLabels } from '@/lib/invoice';
+import Pagination from '@/components/pagination';
 import TableSearch from '@/components/table-search';
 import type { Invoice, InvoiceStatus, Paginated } from '@/types/invoice';
 
@@ -79,7 +80,7 @@ export default function InvoicesIndex({ invoices, filters }: Props) {
                     <div>
                         <h2 className="text-sm font-semibold">All Invoices</h2>
                         <p className="text-xs text-muted-foreground">
-                            {invoices.data.length} invoice{invoices.data.length === 1 ? '' : 's'} listed
+                            {invoices.total} invoice{invoices.total === 1 ? '' : 's'} total
                         </p>
                     </div>
                     <TableSearch
@@ -281,6 +282,7 @@ export default function InvoicesIndex({ invoices, filters }: Props) {
                         </tbody>
                     </table>
                 </div>
+                <Pagination paginated={invoices} />
             </div>
 
             <Dialog open={!!slipPreview} onOpenChange={(open) => { if (!open) setSlipPreview(null); }}>

@@ -10,6 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import TableSearch from '@/components/table-search';
+import Pagination from '@/components/pagination';
 import type { Client, Paginated } from '@/types/invoice';
 
 type Props = {
@@ -56,7 +57,7 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                     <div>
                         <h2 className="text-sm font-semibold">All Clients</h2>
                         <p className="text-xs text-muted-foreground">
-                            {clients.data.length} client{clients.data.length === 1 ? '' : 's'} listed
+                            {clients.total} client{clients.total === 1 ? '' : 's'} total
                         </p>
                     </div>
                     <TableSearch
@@ -172,6 +173,7 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                     </tbody>
                 </table>
                 </div>
+                <Pagination paginated={clients} />
             </div>
         </div>
     );
