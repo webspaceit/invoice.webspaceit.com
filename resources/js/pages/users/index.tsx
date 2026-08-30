@@ -22,6 +22,7 @@ import {
 import type { User } from '@/types/auth';
 import type { Client } from '@/types/client';
 import type { Paginated } from '@/types/invoice';
+import Pagination from '@/components/pagination';
 
 type Props = {
     users: Paginated<User & { clients: Client[] }>;
@@ -164,26 +165,30 @@ export default function UsersIndex({ users, clients }: Props) {
                 <div className="overflow-x-auto">
                 <table className="w-full min-w-[900px] text-sm">
                     <thead>
-                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                            <th className="px-4 py-3 font-semibold">Name</th>
-                            <th className="px-4 py-3 font-semibold">Email</th>
-                            <th className="px-4 py-3 font-semibold">Role</th>
-                            {isSuperAdmin && <th className="px-4 py-3 font-semibold">Assigned Clients</th>}
-                            {isSuperAdmin && <th className="px-4 py-3 text-right font-semibold">Change Role</th>}
-                            {isSuperAdmin && <th className="px-4 py-3 text-right font-semibold"></th>}
+                        <tr className="border-b bg-primary text-white">
+                            <th className="px-4 py-3 text-left">Sl.</th>
+                            <th className="px-4 py-3 text-left">Name</th>
+                            <th className="px-4 py-3 text-left">Email</th>
+                            <th className="px-4 py-3 text-left">Role</th>
+                            {isSuperAdmin && <th className="px-4 py-3 text-left">Assigned Clients</th>}
+                            {isSuperAdmin && <th className="px-4 py-3 text-right">Change Role</th>}
+                            {isSuperAdmin && <th className="px-4 py-3 text-right"></th>}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                    <tbody>
                         {users.data.length === 0 && (
                             <tr>
-                                <td colSpan={isSuperAdmin ? 6 : 3} className="px-4 py-14 text-center text-muted-foreground">
+                                <td colSpan={isSuperAdmin ? 7 : 4} className="px-4 py-8 text-center text-gray-500">
                                     <Users className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                     No users found yet.
                                 </td>
                             </tr>
                         )}
-                        {users.data.map((user) => (
-                            <tr key={user.id} className="transition-colors hover:bg-muted/40">
+                        {users.data.map((user, index) => (
+                            <tr key={user.id} className="border-b transition-colors hover:bg-gray-50">
+                                <td className="px-4 py-3 text-muted-foreground">
+                                    {users.from !== null ? users.from + index : index + 1}
+                                </td>
                                 <td className="px-4 py-3 font-medium">
                                     <div className="flex items-center gap-2">
                                         <UserCog className="size-4 text-muted-foreground" />
@@ -287,6 +292,7 @@ export default function UsersIndex({ users, clients }: Props) {
                     </tbody>
                 </table>
                 </div>
+                <Pagination paginated={users} />
             </div>
         </div>
     );

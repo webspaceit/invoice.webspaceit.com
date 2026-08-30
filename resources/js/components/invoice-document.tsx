@@ -126,14 +126,14 @@ export function InvoiceDocument({ invoice }: Props) {
 
 function Header({ invoice }: Props) {
     return (
-        <header className="flex items-start justify-between border-b-4 border-[#032f44] pb-4">
+        <header className="flex items-start justify-between border-b-4 border-[#007c47] pb-4">
             <img
                 src="/images/web-space-it-logo.png"
                 alt="Web Space IT"
                 className="h-auto w-[220px]"
             />
             <div className="text-right">
-                <h1 className="text-4xl font-bold tracking-normal text-[#032f44]">
+                <h1 className="text-4xl font-bold tracking-normal text-[#007c47]">
                     INVOICE
                 </h1>
                 <p className="mt-1.5 text-sm text-[#0f7a18]">
@@ -154,7 +154,7 @@ function InfoBox({
     dark?: boolean;
 }) {
     return (
-        <div className={dark ? 'bg-[#032f44] text-white' : 'border'}>
+        <div className={dark ? 'bg-[#007c47] text-white' : 'border'}>
             <div
                 className={
                     dark
@@ -171,7 +171,7 @@ function InfoBox({
 
 function SectionTitle({ text }: { text: string }) {
     return (
-        <h2 className="bg-[#032f44] px-3 py-1.5 text-sm font-semibold text-white">
+        <h2 className="bg-[#007c47] px-3 py-1.5 text-sm font-semibold text-white">
             {text}
         </h2>
     );
@@ -188,7 +188,7 @@ function TotalRow({
 }) {
     return (
         <div
-            className={`flex justify-between border-b pb-1 ${strong ? 'font-bold text-[#032f44]' : ''
+            className={`flex justify-between border-b pb-1 ${strong ? 'font-bold text-[#007c47]' : ''
                 }`}
         >
             <span>{label}</span>
@@ -199,7 +199,7 @@ function TotalRow({
 
 function Footer() {
     return (
-        <footer className="mt-8 grid gap-5 border-t-2 border-[#032f44] pt-4 text-xs md:grid-cols-2">
+        <footer className="mt-8 grid gap-5 border-t-2 border-[#007c47] pt-4 text-xs md:grid-cols-2">
             <div className="leading-5">
                 <p className="font-semibold">Corporate Address:</p>
                 <p>

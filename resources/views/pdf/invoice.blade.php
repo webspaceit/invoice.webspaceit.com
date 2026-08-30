@@ -44,7 +44,7 @@
     .header {
         display: table;
         width: 100%;
-        border-bottom: 4px solid #032f44;
+        border-bottom: 4px solid #007c47;
         padding: 15px 0 10px 0;
     }
     .header-left,
@@ -60,7 +60,7 @@
     .header-right h1 {
         font-size: 40px;
         font-weight: 700;
-        color: #032f44;
+        color: #007c47;
         margin: 0 0 4px 0;
     }
     .header-right .status {
@@ -84,7 +84,7 @@
     }
     .info-grid-full .info-box { width: 50%; }
     .info-box.dark {
-        background-color: #032f44;
+        background-color: #007c47;
         color: #fff;
     }
     .info-box .label {
@@ -100,7 +100,7 @@
     }
     .info-box.dark .value { color: #fff; }
     .section-title {
-        background-color: #032f44;
+        background-color: #007c47;
         color: #fff;
         padding: 5px 10px;
         font-size: 20px;
@@ -175,7 +175,7 @@
     .totals-table tr.border-bottom td { border-bottom: 1px solid #eee; font-size:15px; }
     .totals-table .strong {
         font-weight: 700;
-        color: #032f44;
+        color: #007c47;
         font-size:15px;
     }
     .note-section {
@@ -188,7 +188,7 @@
     .note-section .label { font-weight: 600; font-size: 16px; font-family: Arial, Helvetica, sans-serif; }
     .footer {
         margin-top: 14px;
-        border-top: 2px solid #032f44;
+        border-top: 2px solid #007c47;
         padding-top: 8px;
         display: table;
         width: 100%;
@@ -253,8 +253,8 @@
     .signature-designation {
         font-size: 16px;
         font-weight: 600;
-        color: #032f44;
-        border-top: 1px solid #032f44;
+        color: #007c47;
+        border-top: 1px solid #007c47;
         padding-top: 3px;
         margin-top: 4px;
         display: block;

@@ -22,6 +22,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             asChild
                             isActive={isCurrentUrl(item.href)}
                             tooltip={{ children: item.title }}
+                            className="gap-3 rounded-xl px-3 py-2 text-[15px] font-semibold tracking-wide data-[active=true]:font-semibold [&>svg]:size-5"
                         >
                             <Link href={item.href} prefetch>
                                 {item.icon && <item.icon />}

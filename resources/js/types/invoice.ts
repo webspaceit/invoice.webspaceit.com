@@ -48,6 +48,8 @@ export type InvoiceStatus = 'draft' | 'unpaid' | 'partial' | 'paid' | 'overdue';
 export type Paginated<T> = {
     data: T[];
     current_page: number;
+    from: number | null;
+    to: number | null;
     last_page: number;
     per_page: number;
     total: number;

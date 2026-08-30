@@ -29,7 +29,7 @@ class UserController extends Controller
         }
 
         return Inertia::render('users/index', [
-            'users' => $query->latest()->paginate(20),
+            'users' => $query->latest()->paginate(20)->withQueryString(),
             'clients' => $clientsQuery->orderBy('name')->get(['id', 'name', 'company']),
         ]);
     }

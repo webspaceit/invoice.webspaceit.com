@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { FileText } from 'lucide-react';
+import { FileText, Wallet, Banknote, Clock, AlertTriangle, Receipt } from 'lucide-react';
 import { money, statusClass, statusLabels } from '@/lib/invoice';
 import { dashboard } from '@/routes';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
@@ -29,26 +29,53 @@ export default function Dashboard({
     return (
         <>
             <Head title="Dashboard" />
-            <div className="space-y-6 p-6">
+            <div className="space-y-4 p-6 sm:space-y-6">
                 <div>
-                    <h1 className="text-2xl font-semibold">Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-primary-700">Dashboard</h1>
                     <p className="text-sm text-muted-foreground">
                         Invoice performance and recent billing activity.
                     </p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                    <Metric label="Invoices" value={summary.total_invoices} />
-                    <Metric label="Billed" value={money(summary.invoice_total)} />
-                    <Metric label="Paid" value={money(summary.paid_amount)} />
-                    <Metric label="Due" value={money(summary.due_amount)} />
-                    <Metric label="Overdue" value={summary.overdue_invoices} />
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5 sm:gap-6">
+                    <Metric
+                        icon={<Receipt className="h-5 w-5" />}
+                        label={`Invoices (${summary.total_invoices})`}
+                        value={String(summary.total_invoices)}
+                        variant="green"
+                    />
+                    <Metric
+                        icon={<Wallet className="h-5 w-5" />}
+                        label="Billed"
+                        value={money(summary.invoice_total)}
+                        variant="green"
+                    />
+                    <Metric
+                        icon={<Banknote className="h-5 w-5" />}
+                        label="Paid"
+                        value={money(summary.paid_amount)}
+                        variant="green"
+                    />
+                    <Metric
+                        icon={<Clock className="h-5 w-5" />}
+                        label="Due"
+                        value={money(summary.due_amount)}
+                        variant="amber"
+                    />
+                    <Metric
+                        icon={<AlertTriangle className="h-5 w-5" />}
+                        label="Overdue"
+                        value={String(summary.overdue_invoices)}
+                        variant="red"
+                    />
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-[1fr_200px]">
-                    <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                        <div className="border-b px-4 py-3">
-                            <h2 className="text-sm font-semibold">Recent Invoices</h2>
+                <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_320px]">
+                    {/* Recent Invoices */}
+                    <div className="overflow-hidden rounded-2xl bg-card shadow-lg">
+                        <div className="rounded-t-2xl border-b border-gray-100 bg-gradient-to-r from-primary-50 to-white px-5 py-4">
+                            <h2 className="text-lg font-bold text-primary-700">Recent Invoices</h2>
                             <p className="text-xs text-muted-foreground">
                                 {recentInvoices.length} invoice{recentInvoices.length === 1 ? '' : 's'} listed
                             </p>
@@ -56,25 +83,25 @@ export default function Dashboard({
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[640px] text-sm">
                                 <thead>
-                                    <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                                        <th className="px-4 py-3 font-semibold">Invoice</th>
-                                        <th className="px-4 py-3 font-semibold">Client</th>
-                                        <th className="px-4 py-3 font-semibold">Status</th>
-                                        <th className="px-4 py-3 text-right font-semibold">Total</th>
-                                        <th className="px-4 py-3 text-right font-semibold">Due</th>
+                                    <tr className="border-b bg-primary text-white">
+                                        <th className="px-4 py-3 text-left">Invoice</th>
+                                        <th className="px-4 py-3 text-left">Client</th>
+                                        <th className="px-4 py-3 text-left">Status</th>
+                                        <th className="px-4 py-3 text-right">Total</th>
+                                        <th className="px-4 py-3 text-right">Due</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                                <tbody>
                                     {recentInvoices.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="px-4 py-14 text-center text-muted-foreground">
+                                            <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                                                 <FileText className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                                 No invoices found yet.
                                             </td>
                                         </tr>
                                     )}
                                     {recentInvoices.map((invoice) => (
-                                        <tr key={invoice.id} className="transition-colors hover:bg-muted/40">
+                                        <tr key={invoice.id} className="border-b transition-colors hover:bg-gray-50">
                                             <td className="px-4 py-3 font-medium">
                                                 <Link
                                                     href={`/invoices/${invoice.id}`}
@@ -100,9 +127,12 @@ export default function Dashboard({
                         </div>
                     </div>
 
-                    <div className="rounded-lg border bg-card p-4">
-                        <h2 className="font-semibold">Payment Status</h2>
-                        <div className="mt-4 space-y-3">
+                    {/* Payment Status */}
+                    <div className="overflow-hidden rounded-2xl bg-card shadow-lg">
+                        <div className="rounded-t-2xl border-b border-gray-100 bg-gradient-to-r from-primary-50 to-white px-5 py-4">
+                            <h2 className="text-lg font-bold text-primary-700">Payment Status</h2>
+                        </div>
+                        <div className="space-y-3 p-4 sm:p-5">
                             {statusBreakdown.map((item) => (
                                 <div
                                     key={item.payment_status}
@@ -113,7 +143,7 @@ export default function Dashboard({
                                     >
                                         {statusLabels[item.payment_status]}
                                     </span>
-                                    <span className="font-semibold">{item.total}</span>
+                                    <span className="font-bold text-primary-700">{item.total}</span>
                                 </div>
                             ))}
                         </div>
@@ -124,11 +154,38 @@ export default function Dashboard({
     );
 }
 
-function Metric({ label, value }: { label: string; value: string | number }) {
+function Metric({
+    icon,
+    label,
+    value,
+    variant,
+}: {
+    icon: React.ReactNode;
+    label: string;
+    value: string | number;
+    variant: 'green' | 'amber' | 'red';
+}) {
+    const gradients: Record<typeof variant, string> = {
+        green:
+            'bg-gradient-to-br from-primary-500 to-primary-800 shadow-primary-500/20 hover:shadow-primary-500/30',
+        amber:
+            'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-400/20 hover:shadow-amber-400/30',
+        red: 'bg-gradient-to-br from-red-500 to-red-700 shadow-red-500/20 hover:shadow-red-500/30',
+    };
+
     return (
-        <div className="rounded-lg border bg-card p-4">
-            <div className="text-sm text-muted-foreground">{label}</div>
-            <div className="mt-2 text-2xl font-semibold">{value}</div>
+        <div
+            className={`group relative overflow-hidden rounded-2xl p-4 text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl sm:p-6 ${gradients[variant]}`}
+        >
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10"></div>
+            <div className="absolute -bottom-4 -right-4 h-16 w-16 rounded-full bg-white/5"></div>
+            <div className="relative">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    {icon}
+                </div>
+                <p className="text-xs font-medium text-white/80 sm:text-sm">{label}</p>
+                <p className="mt-1 text-2xl font-bold sm:text-3xl">{value}</p>
+            </div>
         </div>
     );
 }

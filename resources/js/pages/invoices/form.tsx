@@ -252,7 +252,7 @@ export function InvoiceForm({
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[760px]">
-                        <thead className="bg-muted">
+                        <thead className="bg-primary text-white">
                             <tr>
                                 <th className="w-12 p-3 text-left">No.</th>
                                 <th className="p-3 text-left">Description</th>

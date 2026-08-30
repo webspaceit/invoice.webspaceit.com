@@ -69,21 +69,21 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                 <div className="overflow-x-auto">
                 <table className="w-full min-w-[960px] text-sm">
                     <thead>
-                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                            <th className="px-4 py-3 font-semibold">Sl.</th>
-                            <th className="px-4 py-3 font-semibold">Name</th>
-                            <th className="px-4 py-3 font-semibold">Company</th>
-                            <th className="px-4 py-3 font-semibold">Designation</th>
-                            <th className="px-4 py-3 font-semibold">Contact</th>
-                            <th className="px-4 py-3 font-semibold">Invoices</th>
-                            {isSuperAdmin && <th className="px-4 py-3 font-semibold">Assigned Admins</th>}
-                            <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                        <tr className="border-b bg-primary text-white">
+                            <th className="px-4 py-3 text-left">Sl.</th>
+                            <th className="px-4 py-3 text-left">Name</th>
+                            <th className="px-4 py-3 text-left">Company</th>
+                            <th className="px-4 py-3 text-left">Designation</th>
+                            <th className="px-4 py-3 text-left">Contact</th>
+                            <th className="px-4 py-3 text-left">Invoices</th>
+                            {isSuperAdmin && <th className="px-4 py-3 text-left">Assigned Admins</th>}
+                            <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                    <tbody>
                         {clients.data.length === 0 && (
                             <tr>
-                                <td colSpan={isSuperAdmin ? 8 : 7} className="px-4 py-14 text-center text-muted-foreground">
+                                <td colSpan={isSuperAdmin ? 8 : 7} className="px-4 py-8 text-center text-gray-500">
                                     <Users className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                     No clients found yet.
                                 </td>
@@ -92,16 +92,16 @@ export default function ClientsIndex({ clients, admins, filters }: Props) {
                         {clients.data.map((client, index) => {
                             const assignedIds = (client.users ?? []).map((u) => u.id);
                             return (
-                                <tr key={client.id} className="transition-colors hover:bg-muted/40">
-                                    <td className="px-4 py-3 text-muted-foreground">{(clients.current_page - 1) * clients.per_page + index + 1}</td>
-                                    <td className="px-4 py-3 font-medium">{client.name}</td>
-                                    <td className="px-4 py-3">{client.company ?? '-'}</td>
-                                    <td className="px-4 py-3">{client.designation ?? '-'}</td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                                <tr key={client.id} className="border-b transition-colors hover:bg-gray-50">
+                                    <td className="px-4 py-3 text-sm text-gray-500">{(clients.current_page - 1) * clients.per_page + index + 1}</td>
+                                    <td className="px-4 py-3 font-medium text-gray-800">{client.name}</td>
+                                    <td className="px-4 py-3 text-gray-700">{client.company ?? '-'}</td>
+                                    <td className="px-4 py-3 text-gray-700">{client.designation ?? '-'}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">
                                         <div>{client.email ?? '-'}</div>
                                         <div>{client.phone ?? ''}</div>
                                     </td>
-                                    <td className="px-4 py-3">{client.invoices_count ?? 0}</td>
+                                    <td className="px-4 py-3 text-gray-700">{client.invoices_count ?? 0}</td>
                                     {isSuperAdmin && (
                                         <td className="px-4 py-3">
                                             <div className="relative">

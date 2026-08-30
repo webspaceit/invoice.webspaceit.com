@@ -101,32 +101,32 @@ export default function DomainsIndex({ domains, filters }: Props) {
                 <div className="overflow-x-auto">
                 <table className="w-full min-w-[1240px] text-sm">
                     <thead>
-                        <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                            <th className="px-4 py-3 font-semibold">Sl.</th>
-                            <th className="px-4 py-3 font-semibold">Domain Name</th>
-                            <th className="px-4 py-3 font-semibold">Registrar</th>
-                            <th className="px-4 py-3 font-semibold">Client</th>
-                            <th className="px-4 py-3 font-semibold">Provider</th>
-                            <th className="px-4 py-3 font-semibold">Domain Registered</th>
-                            <th className="px-4 py-3 font-semibold">Domain Expires</th>
-                            <th className="px-4 py-3 font-semibold">Hosting Registered</th>
-                            <th className="px-4 py-3 font-semibold">Hosting Expires</th>
-                            <th className="px-4 py-3 font-semibold">Status</th>
-                            <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                        <tr className="border-b bg-primary text-white">
+                            <th className="px-4 py-3 text-left">Sl.</th>
+                            <th className="px-4 py-3 text-left">Domain Name</th>
+                            <th className="px-4 py-3 text-left">Registrar</th>
+                            <th className="px-4 py-3 text-left">Client</th>
+                            <th className="px-4 py-3 text-left">Provider</th>
+                            <th className="px-4 py-3 text-left">Domain Registered</th>
+                            <th className="px-4 py-3 text-left">Domain Expires</th>
+                            <th className="px-4 py-3 text-left">Hosting Registered</th>
+                            <th className="px-4 py-3 text-left">Hosting Expires</th>
+                            <th className="px-4 py-3 text-left">Status</th>
+                            <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                    <tbody>
                         {domains.data.length === 0 && (
                             <tr>
-                                <td colSpan={11} className="px-4 py-14 text-center text-muted-foreground">
+                                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
                                     <Globe className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                     No domains found yet.
                                 </td>
                             </tr>
                         )}
                         {domains.data.map((domain, i) => (
-                            <tr key={domain.id} className="transition-colors hover:bg-muted/40">
-                                <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
+                            <tr key={domain.id} className="border-b transition-colors hover:bg-gray-50">
+                                <td className="px-4 py-3 text-muted-foreground">{domains.from !== null ? domains.from + i : i + 1}</td>
                                 <td className="relative py-3 pl-5 pr-4 font-medium">
                                     <span
                                         className={`pointer-events-none absolute inset-y-0 left-0 w-1 ${domainBarClass(domain.computed_status)}`}

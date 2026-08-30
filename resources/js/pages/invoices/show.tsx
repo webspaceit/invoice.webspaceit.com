@@ -70,17 +70,17 @@ export default function ShowInvoice({ invoice }: Props) {
                     <div className="overflow-x-auto">
                     <table className="w-full min-w-[700px] text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                                <th className="px-4 py-3 font-semibold">No.</th>
-                                <th className="px-4 py-3 font-semibold">Description</th>
-                                <th className="px-4 py-3 text-right font-semibold">Amount</th>
-                                <th className="px-4 py-3 text-right font-semibold">Qty.</th>
-                                <th className="px-4 py-3 text-right font-semibold">Total</th>
+                            <tr className="border-b bg-primary text-white">
+                                <th className="px-4 py-3 text-left">No.</th>
+                                <th className="px-4 py-3 text-left">Description</th>
+                                <th className="px-4 py-3 text-right">Amount</th>
+                                <th className="px-4 py-3 text-right">Qty.</th>
+                                <th className="px-4 py-3 text-right">Total</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                        <tbody>
                             {invoice.items.map((item, index) => (
-                                <tr key={item.id ?? index} className="transition-colors hover:bg-muted/40">
+                                <tr key={item.id ?? index} className="border-b transition-colors hover:bg-gray-50">
                                     <td className="px-4 py-3">{index + 1}</td>
                                     <td className="px-4 py-3">{item.description}</td>
                                     <td className="px-4 py-3 text-right tabular-nums">

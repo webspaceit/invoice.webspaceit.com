@@ -92,34 +92,34 @@ export default function InvoicesIndex({ invoices, filters }: Props) {
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[1240px] text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground [&_th]:border-l [&_th]:border-border [&_th]:first:border-l-0">
-                                <th className="px-4 py-3 font-semibold">Sl.</th>
-                                <th className="px-4 py-3 font-semibold">Invoice</th>
-                                <th className="px-4 py-3 font-semibold">Client</th>
-                                <th className="px-4 py-3 font-semibold">Due Date</th>
-                                <th className="px-4 py-3 font-semibold">Status</th>
-                                <th className="px-4 py-3 font-semibold">Paid Date</th>
-                                <th className="px-4 py-3 font-semibold">Payment Method</th>
-                                <th className="px-4 py-3 text-right font-semibold">Actually Received</th>
-                                <th className="px-4 py-3 font-semibold">Payment Slip</th>
-                                <th className="px-4 py-3 text-right font-semibold">Total</th>
-                                <th className="px-4 py-3 text-right font-semibold">Paid</th>
-                                <th className="px-4 py-3 text-right font-semibold">Due</th>
-                                <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                            <tr className="border-b bg-primary text-white">
+                                <th className="px-4 py-3 text-left">Sl.</th>
+                                <th className="px-4 py-3 text-left">Invoice</th>
+                                <th className="px-4 py-3 text-left">Client</th>
+                                <th className="px-4 py-3 text-left">Due Date</th>
+                                <th className="px-4 py-3 text-left">Status</th>
+                                <th className="px-4 py-3 text-left">Paid Date</th>
+                                <th className="px-4 py-3 text-left">Payment Method</th>
+                                <th className="px-4 py-3 text-right">Actually Received</th>
+                                <th className="px-4 py-3 text-left">Payment Slip</th>
+                                <th className="px-4 py-3 text-right">Total</th>
+                                <th className="px-4 py-3 text-right">Paid</th>
+                                <th className="px-4 py-3 text-right">Due</th>
+                                <th className="px-4 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-border [&_td]:border-l [&_td]:border-border [&_td]:first:border-l-0">
+                        <tbody>
                             {invoices.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={13} className="px-4 py-14 text-center text-muted-foreground">
+                                    <td colSpan={13} className="px-4 py-8 text-center text-gray-500">
                                         <FileText className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                         No invoices found yet.
                                     </td>
                                 </tr>
                             )}
                             {invoices.data.map((invoice, index) => (
-                                <tr key={invoice.id} className="transition-colors hover:bg-muted/40">
-                                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{index + 1}</td>
+                                <tr key={invoice.id} className="border-b transition-colors hover:bg-gray-50">
+                                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{invoices.from !== null ? invoices.from + index : index + 1}</td>
                                     <td className="relative py-3 pl-5 pr-4">
                                         <span
                                             className={`pointer-events-none absolute inset-y-0 left-0 w-1 ${statusBarClass(invoice.payment_status)}`}
