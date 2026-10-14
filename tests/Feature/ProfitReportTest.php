@@ -92,6 +92,44 @@ test('profit only counts paid invoices', function () {
         );
 });
 
+test('profit report groups profit by client', function () {
+    $this->actingAs(User::factory()->create(['role' => 'super_admin']));
+
+    $acme = makeClient();
+
+    $bee = Client::create([
+        'name' => 'Bee Ltd',
+        'billing_address' => 'Chattogram',
+    ]);
+
+    makeInvoice($acme, 'WSI-2026-9201', [
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'domain_cost' => 150,
+        'hosting_cost' => 250,
+    ]);
+
+    makeInvoice($bee, 'WSI-2026-9202', [
+        'subtotal' => 2000,
+        'invoice_total' => 2000,
+        'domain_cost' => 100,
+        'hosting_cost' => 100,
+    ]);
+
+    $this->get(route('profit.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('summary.profit', fn ($value) => (float) $value === 2400.0)
+            ->where('clientProfit.0.name', 'Bee Ltd')
+            ->where('clientProfit.0.invoice_count', 1)
+            ->where('clientProfit.0.revenue', fn ($value) => (float) $value === 2000.0)
+            ->where('clientProfit.0.cost', fn ($value) => (float) $value === 200.0)
+            ->where('clientProfit.0.profit', fn ($value) => (float) $value === 1800.0)
+            ->where('clientProfit.1.name', 'Acme')
+            ->where('clientProfit.1.profit', fn ($value) => (float) $value === 600.0)
+        );
+});
+
 test('non admin users cannot access the profit report', function () {
     $this->actingAs(User::factory()->create(['role' => 'client']));
 

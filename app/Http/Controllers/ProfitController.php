@@ -65,6 +65,33 @@ class ProfitController extends Controller
         $cost = round((float) $aggregate->cost, 2);
         $profit = round($revenue - $cost, 2);
 
+        $clientProfit = $applyFilters(
+            DB::table('invoices')
+                ->join('clients', 'clients.id', '=', 'invoices.client_id')
+                ->where('invoices.payment_status', 'paid')
+        )
+            ->groupBy('clients.id', 'clients.name', 'clients.company')
+            ->orderByDesc('profit')
+            ->select(
+                'clients.id as client_id',
+                'clients.name',
+                'clients.company',
+                DB::raw('COUNT(invoices.id) as invoice_count'),
+                DB::raw('COALESCE(SUM(invoices.subtotal), 0) as revenue'),
+                DB::raw('COALESCE(SUM(invoices.domain_cost + invoices.hosting_cost), 0) as cost'),
+                DB::raw('COALESCE(SUM(invoices.subtotal - invoices.domain_cost - invoices.hosting_cost), 0) as profit'),
+            )
+            ->get()
+            ->map(fn ($row): array => [
+                'client_id' => (int) $row->client_id,
+                'name' => $row->name,
+                'company' => $row->company,
+                'invoice_count' => (int) $row->invoice_count,
+                'revenue' => round((float) $row->revenue, 2),
+                'cost' => round((float) $row->cost, 2),
+                'profit' => round((float) $row->profit, 2),
+            ]);
+
         $invoices = (clone $base)
             ->with(['client:id,name,company'])
             ->orderByDesc('paid_date')
@@ -90,6 +117,7 @@ class ProfitController extends Controller
                 'invoice_count' => (clone $base)->count(),
             ],
             'clients' => $this->clientOptions($user),
+            'clientProfit' => $clientProfit,
             'filters' => $request->only('client_id', 'from', 'to'),
         ]);
     }

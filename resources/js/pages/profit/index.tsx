@@ -32,6 +32,15 @@ type Props = {
         invoice_count: number;
     };
     clients: { id: number; name: string; company: string | null }[];
+    clientProfit: {
+        client_id: number;
+        name: string;
+        company: string | null;
+        invoice_count: number;
+        revenue: number;
+        cost: number;
+        profit: number;
+    }[];
     filters: {
         client_id?: string;
         from?: string;
@@ -39,7 +48,7 @@ type Props = {
     };
 };
 
-export default function ProfitIndex({ invoices, summary, clients, filters }: Props) {
+export default function ProfitIndex({ invoices, summary, clients, clientProfit, filters }: Props) {
     const [clientId, setClientId] = useState(filters.client_id ?? 'all');
     const [from, setFrom] = useState(filters.from ?? '');
     const [to, setTo] = useState(filters.to ?? '');
@@ -131,7 +140,7 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                             <TrendingDown className="h-5 w-5" />
                         )
                     }
-                    label="Net Profit"
+                    label="Total Profit"
                     value={money(summary.profit)}
                     variant={summary.profit >= 0 ? 'green' : 'red'}
                 />
@@ -141,6 +150,95 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                     value={String(summary.invoice_count)}
                     variant="slate"
                 />
+            </div>
+
+            {/* Profit by client */}
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="border-b px-4 py-3">
+                    <h2 className="text-sm font-semibold">Profit by Client</h2>
+                    <p className="text-xs text-muted-foreground">
+                        Total profit: {money(summary.profit)}
+                    </p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[720px] text-sm">
+                        <thead>
+                            <tr className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+                                <th className="px-4 py-3">Client</th>
+                                <th className="px-4 py-3 text-right">Invoices</th>
+                                <th className="px-4 py-3 text-right">Revenue</th>
+                                <th className="px-4 py-3 text-right">Cost</th>
+                                <th className="px-4 py-3 text-right">Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {clientProfit.length === 0 && (
+                                <tr>
+                                    <td
+                                        colSpan={5}
+                                        className="px-4 py-8 text-center text-muted-foreground"
+                                    >
+                                        No paid invoices found for these filters.
+                                    </td>
+                                </tr>
+                            )}
+                            {clientProfit.map((row) => (
+                                <tr
+                                    key={row.client_id}
+                                    className="border-b transition-colors last:border-0 hover:bg-gray-50"
+                                >
+                                    <td className="px-4 py-3">
+                                        <div className="font-medium">{row.name}</div>
+                                        {row.company && (
+                                            <div className="text-xs text-muted-foreground">
+                                                {row.company}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                                        {row.invoice_count}
+                                    </td>
+                                    <td className="px-4 py-3 text-right tabular-nums">
+                                        {money(row.revenue)}
+                                    </td>
+                                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                                        {money(row.cost)}
+                                    </td>
+                                    <td
+                                        className={`px-4 py-3 text-right font-semibold tabular-nums ${
+                                            row.profit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                                        }`}
+                                    >
+                                        {money(row.profit)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        {clientProfit.length > 0 && (
+                            <tfoot>
+                                <tr className="border-t-2 bg-muted/40 font-semibold">
+                                    <td className="px-4 py-3">Total</td>
+                                    <td className="px-4 py-3 text-right tabular-nums">
+                                        {summary.invoice_count}
+                                    </td>
+                                    <td className="px-4 py-3 text-right tabular-nums">
+                                        {money(summary.revenue)}
+                                    </td>
+                                    <td className="px-4 py-3 text-right tabular-nums">
+                                        {money(summary.cost)}
+                                    </td>
+                                    <td
+                                        className={`px-4 py-3 text-right tabular-nums ${
+                                            summary.profit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                                        }`}
+                                    >
+                                        {money(summary.profit)}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        )}
+                    </table>
+                </div>
             </div>
 
             <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
