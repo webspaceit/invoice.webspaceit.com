@@ -183,6 +183,48 @@ export default function ProfitIndex({ invoices, summary, clients, clientProfit, 
                 />
             </div>
 
+            {/* Filters */}
+            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div className="border-b px-4 py-3">
+                    <h2 className="text-sm font-semibold">Filter</h2>
+                </div>
+                <form
+                    onSubmit={applyFilters}
+                    className="flex flex-wrap items-end gap-3 bg-muted/30 px-4 py-3"
+                >
+                    <div className="min-w-[200px] space-y-1">
+                        <Label className="text-xs">Client</Label>
+                        <Select value={clientId} onValueChange={setClientId}>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="All clients" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All clients</SelectItem>
+                                {clients.map((client) => (
+                                    <SelectItem key={client.id} value={String(client.id)}>
+                                        {client.company ? `${client.name} — ${client.company}` : client.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Paid from</Label>
+                        <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label className="text-xs">Paid to</Label>
+                        <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+                    </div>
+                    <div className="flex gap-2">
+                        <Button type="submit">Apply</Button>
+                        <Button type="button" variant="outline" onClick={resetFilters}>
+                            Reset
+                        </Button>
+                    </div>
+                </form>
+            </div>
+
             {/* Profit by client */}
             <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
@@ -294,43 +336,7 @@ export default function ProfitIndex({ invoices, summary, clients, clientProfit, 
                     </p>
                 </div>
 
-                {/* Filters */}
-                <form
-                    onSubmit={applyFilters}
-                    className="flex flex-wrap items-end gap-3 border-b bg-muted/30 px-4 py-3"
-                >
-                    <div className="min-w-[200px] space-y-1">
-                        <Label className="text-xs">Client</Label>
-                        <Select value={clientId} onValueChange={setClientId}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="All clients" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All clients</SelectItem>
-                                {clients.map((client) => (
-                                    <SelectItem key={client.id} value={String(client.id)}>
-                                        {client.company ? `${client.name} — ${client.company}` : client.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-1">
-                        <Label className="text-xs">Paid from</Label>
-                        <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-                    </div>
-                    <div className="space-y-1">
-                        <Label className="text-xs">Paid to</Label>
-                        <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-                    </div>
-                    <div className="flex gap-2">
-                        <Button type="submit">Apply</Button>
-                        <Button type="button" variant="outline" onClick={resetFilters}>
-                            Reset
-                        </Button>
-                    </div>
-                </form>
-
+                {/* Invoices */}
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[960px] text-sm">
                         <thead>
