@@ -33,7 +33,7 @@ export type Invoice = {
     invoice_total: string;
     total_paid: string;
     amount_due: string;
-    profit_amount: string | null;
+    profit_amount?: string | null;
     payment_status: InvoiceStatus;
     note: string | null;
     signature: string | null;

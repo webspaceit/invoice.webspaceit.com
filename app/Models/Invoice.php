@@ -52,6 +52,12 @@ class Invoice extends Model
         'profit_amount' => 'decimal:2',
     ];
 
+    /**
+     * Never expose internal costing data to clients. Admin-only screens
+     * (e.g. the invoice form) call makeVisible() explicitly.
+     */
+    protected $hidden = ['profit_amount'];
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);

@@ -22,6 +22,12 @@ class InvoiceItem extends Model
         'line_total' => 'decimal:2',
     ];
 
+    /**
+     * Never expose internal cost prices to clients. Admin-only screens
+     * (e.g. the invoice form) call makeVisible() explicitly.
+     */
+    protected $hidden = ['cost_amount'];
+
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);

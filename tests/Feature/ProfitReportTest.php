@@ -146,3 +146,99 @@ test('non admin users cannot access the profit report', function () {
 
     $this->get(route('profit.index'))->assertForbidden();
 });
+
+test('clients never receive profit or cost data', function () {
+    $client = Client::create([
+        'name' => 'Acme',
+        'billing_address' => 'Dhaka',
+    ]);
+
+    $user = User::factory()->create(['role' => 'client']);
+    $user->clients()->attach($client->id);
+
+    $invoice = Invoice::create([
+        'client_id' => $client->id,
+        'invoice_number' => 'WSI-2026-9100',
+        'invoice_date' => '2026-06-08',
+        'due_date' => '2026-06-15',
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'total_paid' => 1000,
+        'amount_due' => 0,
+        'profit_amount' => 250,
+        'payment_status' => 'paid',
+        'paid_date' => '2026-06-10',
+    ]);
+
+    $invoice->items()->create([
+        'description' => 'Hosting',
+        'unit_amount' => 1000,
+        'cost_amount' => 400,
+        'quantity' => 1,
+        'line_total' => 1000,
+    ]);
+
+    $this->actingAs($user);
+
+    $this->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('canViewProfit', false)
+            ->where('summary.profit', null)
+            ->missing('recentInvoices.0.profit_amount')
+        );
+
+    $this->get(route('invoices.show', $invoice))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->missing('invoice.profit_amount')
+            ->missing('invoice.items.0.cost_amount')
+        );
+});
+
+test('admins can see profit and cost data', function () {
+    $client = Client::create([
+        'name' => 'Acme',
+        'billing_address' => 'Dhaka',
+    ]);
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $admin->clients()->attach($client->id);
+
+    $invoice = Invoice::create([
+        'client_id' => $client->id,
+        'invoice_number' => 'WSI-2026-9101',
+        'invoice_date' => '2026-06-08',
+        'due_date' => '2026-06-15',
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'total_paid' => 1000,
+        'amount_due' => 0,
+        'payment_status' => 'paid',
+        'paid_date' => '2026-06-10',
+    ]);
+
+    $invoice->items()->create([
+        'description' => 'Hosting',
+        'unit_amount' => 1000,
+        'cost_amount' => 400,
+        'quantity' => 1,
+        'line_total' => 1000,
+    ]);
+
+    $this->actingAs($admin);
+
+    $this->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('canViewProfit', true)
+            ->where('summary.profit', fn ($value) => (float) $value === 600.0)
+        );
+
+    $this->get(route('invoices.edit', $invoice))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('invoice.profit_amount')
+            ->where('invoice.items.0.cost_amount', fn ($value) => (float) $value === 400.0)
+        );
+});

@@ -109,8 +109,13 @@ class InvoiceController extends Controller
     {
         $request->user()->isAdmin() || abort(403);
 
+        $invoice->load(['client', 'items']);
+        // Admins are allowed to see costing data on the edit form.
+        $invoice->makeVisible('profit_amount');
+        $invoice->items->each->makeVisible('cost_amount');
+
         return Inertia::render('invoices/edit', [
-            'invoice' => $invoice->load(['client', 'items']),
+            'invoice' => $invoice,
             'clients' => $this->clientOptions($request->user()),
             'defaults' => [
                 'note' => Invoice::DEFAULT_NOTE,

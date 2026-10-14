@@ -10,7 +10,7 @@ type Props = {
         invoice_total: number;
         paid_amount: number;
         due_amount: number;
-        profit: number;
+        profit: number | null;
         overdue_invoices: number;
     };
     statusBreakdown: {
@@ -19,6 +19,7 @@ type Props = {
     }[];
     recentInvoices: Invoice[];
     isSuperAdmin: boolean;
+    canViewProfit: boolean;
 };
 
 export default function Dashboard({
@@ -26,6 +27,7 @@ export default function Dashboard({
     statusBreakdown,
     recentInvoices,
     isSuperAdmin,
+    canViewProfit,
 }: Props) {
     return (
         <>
@@ -58,12 +60,14 @@ export default function Dashboard({
                         value={money(summary.paid_amount)}
                         variant="green"
                     />
-                    <Metric
-                        icon={<TrendingUp className="h-5 w-5" />}
-                        label="Profit (paid)"
-                        value={money(summary.profit)}
-                        variant={summary.profit >= 0 ? 'green' : 'red'}
-                    />
+                    {canViewProfit && summary.profit !== null && (
+                        <Metric
+                            icon={<TrendingUp className="h-5 w-5" />}
+                            label="Profit (paid)"
+                            value={money(summary.profit)}
+                            variant={summary.profit >= 0 ? 'green' : 'red'}
+                        />
+                    )}
                     <Metric
                         icon={<Clock className="h-5 w-5" />}
                         label="Due"
