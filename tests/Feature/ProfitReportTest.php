@@ -41,69 +41,8 @@ test('profit report shows profit for paid invoices based on item cost', function
             ->where('summary.cost', fn ($value) => (float) $value === 400.0)
             ->where('summary.profit', fn ($value) => (float) $value === 600.0)
             ->where('invoices.data.0.profit', fn ($value) => (float) $value === 600.0)
-        );
-});
-
-test('a manually entered profit overrides the calculated profit', function () {
-    $this->actingAs(User::factory()->create(['role' => 'super_admin']));
-
-    $client = Client::create([
-        'name' => 'Acme',
-        'billing_address' => 'Dhaka',
-    ]);
-
-    $manual = Invoice::create([
-        'client_id' => $client->id,
-        'invoice_number' => 'WSI-2026-9003',
-        'invoice_date' => '2026-06-08',
-        'due_date' => '2026-06-15',
-        'subtotal' => 1000,
-        'invoice_total' => 1000,
-        'total_paid' => 1000,
-        'amount_due' => 0,
-        'profit_amount' => 250,
-        'payment_status' => 'paid',
-        'paid_date' => '2026-06-10',
-    ]);
-
-    $manual->items()->create([
-        'description' => 'Hosting',
-        'unit_amount' => 1000,
-        'cost_amount' => 400,
-        'quantity' => 1,
-        'line_total' => 1000,
-    ]);
-
-    $computed = Invoice::create([
-        'client_id' => $client->id,
-        'invoice_number' => 'WSI-2026-9004',
-        'invoice_date' => '2026-06-08',
-        'due_date' => '2026-06-15',
-        'subtotal' => 1000,
-        'invoice_total' => 1000,
-        'total_paid' => 1000,
-        'amount_due' => 0,
-        'payment_status' => 'paid',
-        'paid_date' => '2026-06-10',
-    ]);
-
-    $computed->items()->create([
-        'description' => 'Hosting',
-        'unit_amount' => 1000,
-        'cost_amount' => 400,
-        'quantity' => 1,
-        'line_total' => 1000,
-    ]);
-
-    $this->get(route('profit.index'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            // 250 entered manually + 600 calculated fallback
-            ->where('summary.profit', fn ($value) => (float) $value === 850.0)
-            ->where('invoices.data.0.profit', fn ($value) => (float) $value === 600.0)
-            ->where('invoices.data.0.profit_source', 'auto')
-            ->where('invoices.data.1.profit', fn ($value) => (float) $value === 250.0)
-            ->where('invoices.data.1.profit_source', 'manual')
+            ->missing('invoices.data.0.profit_source')
+            ->missing('invoices.data.0.profit_amount')
         );
 });
 
@@ -165,7 +104,6 @@ test('clients never receive profit or cost data', function () {
         'invoice_total' => 1000,
         'total_paid' => 1000,
         'amount_due' => 0,
-        'profit_amount' => 250,
         'payment_status' => 'paid',
         'paid_date' => '2026-06-10',
     ]);
@@ -185,13 +123,11 @@ test('clients never receive profit or cost data', function () {
         ->assertInertia(fn ($page) => $page
             ->where('canViewProfit', false)
             ->where('summary.profit', null)
-            ->missing('recentInvoices.0.profit_amount')
         );
 
     $this->get(route('invoices.show', $invoice))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->missing('invoice.profit_amount')
             ->missing('invoice.items.0.cost_amount')
         );
 });
@@ -238,7 +174,6 @@ test('admins can see profit and cost data', function () {
     $this->get(route('invoices.edit', $invoice))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('invoice.profit_amount')
             ->where('invoice.items.0.cost_amount', fn ($value) => (float) $value === 400.0)
         );
 });

@@ -111,7 +111,6 @@ class InvoiceController extends Controller
 
         $invoice->load(['client', 'items']);
         // Admins are allowed to see costing data on the edit form.
-        $invoice->makeVisible('profit_amount');
         $invoice->items->each->makeVisible('cost_amount');
 
         return Inertia::render('invoices/edit', [
@@ -218,7 +217,6 @@ class InvoiceController extends Controller
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'total_paid' => ['nullable', 'numeric', 'min:0'],
-            'profit_amount' => ['nullable', 'numeric'],
             'payment_status' => ['required', Rule::in(Invoice::STATUSES)],
             'note' => ['nullable', 'string'],
             'signature' => ['nullable', 'image', 'max:2048'],

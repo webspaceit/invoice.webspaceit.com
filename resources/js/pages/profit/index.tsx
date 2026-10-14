@@ -61,8 +61,8 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
             <div>
                 <h1 className="text-2xl font-semibold">Profit</h1>
                 <p className="text-sm text-muted-foreground">
-                    Profit from paid invoices only. Each invoice uses the profit you enter manually;
-                    when it is left blank, the calculated selling price minus cost price is used instead.
+                    Profit from paid invoices only. Profit is calculated automatically as the
+                    selling price minus the cost price entered on each line item.
                 </p>
             </div>
 
@@ -207,12 +207,7 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                                                 profit >= 0 ? 'text-emerald-600' : 'text-red-600'
                                             }`}
                                         >
-                                            <div>{money(profit)}</div>
-                                            <div className="text-[11px] font-normal text-muted-foreground">
-                                                {invoice.profit_source === 'manual'
-                                                    ? 'Manual'
-                                                    : 'Calculated'}
-                                            </div>
+                                            {money(profit)}
                                         </td>
                                     </tr>
                                 );

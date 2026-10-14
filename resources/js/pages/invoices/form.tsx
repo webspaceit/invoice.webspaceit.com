@@ -28,7 +28,6 @@ export type InvoiceFormData = {
     discount_amount: string;
     tax_rate: string;
     total_paid: string;
-    profit_amount: string;
     payment_status: InvoiceStatus;
     note: string;
     signature: File | null;
@@ -67,7 +66,6 @@ export function invoiceToForm(
         discount_amount: invoice?.discount_amount ?? '0',
         tax_rate: invoice?.tax_rate ?? '0',
         total_paid: invoice?.total_paid ?? '0',
-        profit_amount: invoice?.profit_amount ?? '',
         payment_status: invoice?.payment_status ?? 'unpaid',
         note: invoice?.note ?? defaults?.note ?? '',
         signature: null,
@@ -107,8 +105,6 @@ export function InvoiceForm({
         0,
     );
     const profit = subtotal - costTotal;
-    const hasManualProfit = data.profit_amount.trim() !== '';
-    const effectiveProfit = hasManualProfit ? Number(data.profit_amount || 0) : profit;
     const discount = Math.min(Number(data.discount_amount || 0), subtotal);
     const taxableAmount = Math.max(subtotal - discount, 0);
     const tax = taxableAmount * (Number(data.tax_rate || 0) / 100);
@@ -378,19 +374,9 @@ export function InvoiceForm({
                 <div className="space-y-3 rounded-lg border bg-card p-4">
                     <SummaryRow label="Sub Total" value={money(subtotal)} />
                     <SummaryRow label="Cost (line items)" value={money(costTotal)} />
-                    <SummaryRow label="Calculated Profit" value={money(profit)} />
-                    <Field
-                        id="profit_amount"
-                        label="Profit (enter manually)"
-                        type="number"
-                        allowNegative
-                        value={data.profit_amount}
-                        error={errors.profit_amount}
-                        onChange={(value) => setData('profit_amount', value)}
-                    />
                     <SummaryRow
-                        label="Profit used for reports"
-                        value={money(effectiveProfit)}
+                        label="Profit (Sub Total - Cost)"
+                        value={money(profit)}
                         strong
                     />
                     <SummaryRow label="Discount" value={money(discount)} />
@@ -489,7 +475,6 @@ function Field({
     onChange,
     error,
     type = 'text',
-    allowNegative = false,
 }: {
     id: string;
     label: string;
@@ -497,7 +482,6 @@ function Field({
     onChange: (value: string) => void;
     error?: string;
     type?: string;
-    allowNegative?: boolean;
 }) {
     return (
         <div className="space-y-2">
@@ -506,7 +490,7 @@ function Field({
                 id={id}
                 type={type}
                 step={type === 'number' ? '0.01' : undefined}
-                min={type === 'number' && !allowNegative ? '0' : undefined}
+                min={type === 'number' ? '0' : undefined}
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
             />

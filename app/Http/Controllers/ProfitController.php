@@ -65,23 +65,7 @@ class ProfitController extends Controller
 
         $revenue = round((float) $aggregate->revenue, 2);
         $cost = round((float) $aggregate->cost, 2);
-
-        $manualProfit = (float) $applyFilters(
-            DB::table('invoices')
-                ->where('invoices.payment_status', 'paid')
-                ->whereNotNull('invoices.profit_amount')
-        )->sum('invoices.profit_amount');
-
-        $autoProfit = (float) $applyFilters(
-            DB::table('invoice_items')
-                ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
-                ->where('invoices.payment_status', 'paid')
-                ->whereNull('invoices.profit_amount')
-        )
-            ->selectRaw('COALESCE(SUM(invoice_items.line_total - (invoice_items.cost_amount * invoice_items.quantity)), 0) as profit')
-            ->value('profit');
-
-        $profit = round($manualProfit + $autoProfit, 2);
+        $profit = round($revenue - $cost, 2);
 
         $invoices = (clone $base)
             ->with(['client:id,name,company', 'items'])
@@ -92,8 +76,7 @@ class ProfitController extends Controller
 
         $invoices->through(function (Invoice $invoice): Invoice {
             $invoice->setAttribute('cost_total', $invoice->costFromItems());
-            $invoice->setAttribute('profit', $invoice->effectiveProfit());
-            $invoice->setAttribute('profit_source', $invoice->profitSource());
+            $invoice->setAttribute('profit', $invoice->profitFromItems());
 
             return $invoice;
         });

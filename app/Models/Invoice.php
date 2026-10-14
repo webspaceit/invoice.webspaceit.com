@@ -27,7 +27,6 @@ class Invoice extends Model
         'invoice_total',
         'total_paid',
         'amount_due',
-        'profit_amount',
         'payment_status',
         'note',
         'signature',
@@ -49,14 +48,7 @@ class Invoice extends Model
         'total_paid' => 'decimal:2',
         'amount_due' => 'decimal:2',
         'actual_paid_amount' => 'decimal:2',
-        'profit_amount' => 'decimal:2',
     ];
-
-    /**
-     * Never expose internal costing data to clients. Admin-only screens
-     * (e.g. the invoice form) call makeVisible() explicitly.
-     */
-    protected $hidden = ['profit_amount'];
 
     public function client(): BelongsTo
     {
@@ -93,28 +85,6 @@ class Invoice extends Model
             ),
             2,
         );
-    }
-
-    /**
-     * The profit used for reporting. A manually entered profit takes priority;
-     * when it is left blank we fall back to the calculated (selling - cost)
-     * figure derived from the line items.
-     */
-    public function effectiveProfit(): float
-    {
-        if ($this->profit_amount !== null) {
-            return round((float) $this->profit_amount, 2);
-        }
-
-        return $this->profitFromItems();
-    }
-
-    /**
-     * Whether the reported profit was entered manually or calculated.
-     */
-    public function profitSource(): string
-    {
-        return $this->profit_amount !== null ? 'manual' : 'auto';
     }
 
     public static function nextInvoiceNumber(): string

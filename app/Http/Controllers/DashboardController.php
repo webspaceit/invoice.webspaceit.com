@@ -44,20 +44,9 @@ class DashboardController extends Controller
         $profit = 0.0;
 
         if ($canViewProfit) {
-            $manualProfitQuery = Invoice::query()
-                ->where('payment_status', 'paid')
-                ->whereNotNull('profit_amount');
-
-            if (!$isSuperAdmin) {
-                $manualProfitQuery->whereIn('client_id', $clientIds);
-            }
-
-            $manualProfit = (float) $manualProfitQuery->sum('profit_amount');
-
             $autoProfitQuery = InvoiceItem::query()
                 ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
-                ->where('invoices.payment_status', 'paid')
-                ->whereNull('invoices.profit_amount');
+                ->where('invoices.payment_status', 'paid');
 
             if (!$isSuperAdmin) {
                 $autoProfitQuery->whereIn('invoices.client_id', $clientIds);
@@ -67,7 +56,7 @@ class DashboardController extends Controller
                 ->selectRaw('COALESCE(SUM(invoice_items.line_total - (invoice_items.cost_amount * invoice_items.quantity)), 0) as profit')
                 ->value('profit');
 
-            $profit = round($manualProfit + $autoProfit, 2);
+            $profit = round($autoProfit, 2);
         }
 
         return Inertia::render('dashboard', [
