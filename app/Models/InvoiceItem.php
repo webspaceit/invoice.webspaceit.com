@@ -10,12 +10,14 @@ class InvoiceItem extends Model
     protected $fillable = [
         'description',
         'unit_amount',
+        'cost_amount',
         'quantity',
         'line_total',
     ];
 
     protected $casts = [
         'unit_amount' => 'decimal:2',
+        'cost_amount' => 'decimal:2',
         'quantity' => 'decimal:2',
         'line_total' => 'decimal:2',
     ];

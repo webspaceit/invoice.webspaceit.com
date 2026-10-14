@@ -4,6 +4,7 @@ import {
     Globe,
     Handshake,
     LayoutGrid,
+    TrendingUp,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -40,8 +41,14 @@ export function AppSidebar() {
                   { title: 'Domain & Hosting Info', href: '/domains', icon: Globe },
               ]
             : []),
-        ...(isAdmin ? [{ title: 'Users', href: '/users', icon: Users }] : []),
+        ...(isAdmin
+            ? [
+                  { title: 'Profit', href: '/profit', icon: TrendingUp },
+                  { title: 'Users', href: '/users', icon: Users },
+              ]
+            : []),
     ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

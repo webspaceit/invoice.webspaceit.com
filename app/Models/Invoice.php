@@ -27,6 +27,7 @@ class Invoice extends Model
         'invoice_total',
         'total_paid',
         'amount_due',
+        'profit_amount',
         'payment_status',
         'note',
         'signature',
@@ -48,6 +49,7 @@ class Invoice extends Model
         'total_paid' => 'decimal:2',
         'amount_due' => 'decimal:2',
         'actual_paid_amount' => 'decimal:2',
+        'profit_amount' => 'decimal:2',
     ];
 
     public function client(): BelongsTo
@@ -58,6 +60,55 @@ class Invoice extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    /**
+     * Gross profit for this invoice: (selling price - cost price) x quantity
+     * summed across all loaded line items.
+     */
+    public function profitFromItems(): float
+    {
+        return round(
+            $this->items->sum(
+                fn (InvoiceItem $item): float => ((float) $item->unit_amount - (float) $item->cost_amount) * (float) $item->quantity,
+            ),
+            2,
+        );
+    }
+
+    /**
+     * Total cost of goods/services for this invoice based on loaded line items.
+     */
+    public function costFromItems(): float
+    {
+        return round(
+            $this->items->sum(
+                fn (InvoiceItem $item): float => (float) $item->cost_amount * (float) $item->quantity,
+            ),
+            2,
+        );
+    }
+
+    /**
+     * The profit used for reporting. A manually entered profit takes priority;
+     * when it is left blank we fall back to the calculated (selling - cost)
+     * figure derived from the line items.
+     */
+    public function effectiveProfit(): float
+    {
+        if ($this->profit_amount !== null) {
+            return round((float) $this->profit_amount, 2);
+        }
+
+        return $this->profitFromItems();
+    }
+
+    /**
+     * Whether the reported profit was entered manually or calculated.
+     */
+    public function profitSource(): string
+    {
+        return $this->profit_amount !== null ? 'manual' : 'auto';
     }
 
     public static function nextInvoiceNumber(): string

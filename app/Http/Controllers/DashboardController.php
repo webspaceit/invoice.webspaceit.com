@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -39,12 +40,38 @@ class DashboardController extends Controller
             ->selectRaw('COALESCE(SUM(amount_due), 0) as due_amount')
             ->first();
 
+        $manualProfitQuery = Invoice::query()
+            ->where('payment_status', 'paid')
+            ->whereNotNull('profit_amount');
+
+        if (!$isSuperAdmin) {
+            $manualProfitQuery->whereIn('client_id', $clientIds);
+        }
+
+        $manualProfit = (float) $manualProfitQuery->sum('profit_amount');
+
+        $autoProfitQuery = InvoiceItem::query()
+            ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
+            ->where('invoices.payment_status', 'paid')
+            ->whereNull('invoices.profit_amount');
+
+        if (!$isSuperAdmin) {
+            $autoProfitQuery->whereIn('invoices.client_id', $clientIds);
+        }
+
+        $autoProfit = (float) $autoProfitQuery
+            ->selectRaw('COALESCE(SUM(invoice_items.line_total - (invoice_items.cost_amount * invoice_items.quantity)), 0) as profit')
+            ->value('profit');
+
+        $profit = round($manualProfit + $autoProfit, 2);
+
         return Inertia::render('dashboard', [
             'summary' => [
                 'total_invoices' => (int) $totals->total_invoices,
                 'invoice_total' => (float) $totals->invoice_total,
                 'paid_amount' => (float) $totals->paid_amount,
                 'due_amount' => (float) $totals->due_amount,
+                'profit' => $profit,
                 'overdue_invoices' => $overdueQuery->count(),
             ],
             'statusBreakdown' => $statusQuery->get(),

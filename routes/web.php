@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DomainController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ProfitController;
 use App\Http\Controllers\UserController;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -18,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('invoices/{invoice}/payment-slip', [InvoiceController::class, 'uploadPaymentSlip'])->name('invoices.uploadPaymentSlip');
     Route::delete('invoices/{invoice}/payment-slip', [InvoiceController::class, 'removePaymentSlip'])->name('invoices.removePaymentSlip');
     Route::resource('invoices', InvoiceController::class);
+    Route::get('profit', ProfitController::class)->name('profit.index');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');

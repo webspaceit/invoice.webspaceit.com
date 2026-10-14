@@ -213,6 +213,7 @@ class InvoiceController extends Controller
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'total_paid' => ['nullable', 'numeric', 'min:0'],
+            'profit_amount' => ['nullable', 'numeric'],
             'payment_status' => ['required', Rule::in(Invoice::STATUSES)],
             'note' => ['nullable', 'string'],
             'signature' => ['nullable', 'image', 'max:2048'],
@@ -220,6 +221,7 @@ class InvoiceController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.description' => ['required', 'string'],
             'items.*.unit_amount' => ['required', 'numeric', 'min:0'],
+            'items.*.cost_amount' => ['nullable', 'numeric', 'min:0'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
         ]);
     }
@@ -360,6 +362,7 @@ class InvoiceController extends Controller
             ->map(fn (array $item): array => [
                 'description' => $item['description'],
                 'unit_amount' => round((float) $item['unit_amount'], 2),
+                'cost_amount' => round((float) ($item['cost_amount'] ?? 0), 2),
                 'quantity' => round((float) $item['quantity'], 2),
                 'line_total' => round((float) $item['unit_amount'] * (float) $item['quantity'], 2),
             ])

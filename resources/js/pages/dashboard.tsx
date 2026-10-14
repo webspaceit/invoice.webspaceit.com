@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { FileText, Wallet, Banknote, Clock, AlertTriangle, Receipt } from 'lucide-react';
+import { FileText, Wallet, Banknote, Clock, AlertTriangle, Receipt, TrendingUp } from 'lucide-react';
 import { money, statusClass, statusLabels } from '@/lib/invoice';
 import { dashboard } from '@/routes';
 import type { Invoice, InvoiceStatus } from '@/types/invoice';
@@ -10,6 +10,7 @@ type Props = {
         invoice_total: number;
         paid_amount: number;
         due_amount: number;
+        profit: number;
         overdue_invoices: number;
     };
     statusBreakdown: {
@@ -38,7 +39,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5 sm:gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 sm:gap-6">
                     <Metric
                         icon={<Receipt className="h-5 w-5" />}
                         label={`Invoices (${summary.total_invoices})`}
@@ -56,6 +57,12 @@ export default function Dashboard({
                         label="Paid"
                         value={money(summary.paid_amount)}
                         variant="green"
+                    />
+                    <Metric
+                        icon={<TrendingUp className="h-5 w-5" />}
+                        label="Profit (paid)"
+                        value={money(summary.profit)}
+                        variant={summary.profit >= 0 ? 'green' : 'red'}
                     />
                     <Metric
                         icon={<Clock className="h-5 w-5" />}

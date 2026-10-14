@@ -28,6 +28,7 @@ export type InvoiceFormData = {
     discount_amount: string;
     tax_rate: string;
     total_paid: string;
+    profit_amount: string;
     payment_status: InvoiceStatus;
     note: string;
     signature: File | null;
@@ -66,6 +67,7 @@ export function invoiceToForm(
         discount_amount: invoice?.discount_amount ?? '0',
         tax_rate: invoice?.tax_rate ?? '0',
         total_paid: invoice?.total_paid ?? '0',
+        profit_amount: invoice?.profit_amount ?? '',
         payment_status: invoice?.payment_status ?? 'unpaid',
         note: invoice?.note ?? defaults?.note ?? '',
         signature: null,
@@ -76,9 +78,10 @@ export function invoiceToForm(
             ? invoice.items.map((item) => ({
                 description: item.description,
                 unit_amount: item.unit_amount,
+                cost_amount: item.cost_amount ?? '0',
                 quantity: item.quantity,
             }))
-            : [{ description: '', unit_amount: '0', quantity: '1' }],
+            : [{ description: '', unit_amount: '0', cost_amount: '0', quantity: '1' }],
     };
 }
 
@@ -99,6 +102,13 @@ export function InvoiceForm({
         (sum, item) => sum + Number(item.unit_amount || 0) * Number(item.quantity || 0),
         0,
     );
+    const costTotal = data.items.reduce(
+        (sum, item) => sum + Number(item.cost_amount || 0) * Number(item.quantity || 0),
+        0,
+    );
+    const profit = subtotal - costTotal;
+    const hasManualProfit = data.profit_amount.trim() !== '';
+    const effectiveProfit = hasManualProfit ? Number(data.profit_amount || 0) : profit;
     const discount = Math.min(Number(data.discount_amount || 0), subtotal);
     const taxableAmount = Math.max(subtotal - discount, 0);
     const tax = taxableAmount * (Number(data.tax_rate || 0) / 100);
@@ -117,7 +127,7 @@ export function InvoiceForm({
     function addItem() {
         setData('items', [
             ...data.items,
-            { description: '', unit_amount: '0', quantity: '1' },
+            { description: '', unit_amount: '0', cost_amount: '0', quantity: '1' },
         ]);
     }
 
@@ -251,12 +261,13 @@ export function InvoiceForm({
                     </Button>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px]">
+                    <table className="w-full min-w-[960px]">
                         <thead className="bg-primary text-white">
                             <tr>
                                 <th className="w-12 p-3 text-left">No.</th>
                                 <th className="p-3 text-left">Description</th>
                                 <th className="w-40 p-3 text-left">Amount</th>
+                                <th className="w-40 p-3 text-left">Cost</th>
                                 <th className="w-32 p-3 text-left">Qty.</th>
                                 <th className="w-40 p-3 text-right">Total</th>
                                 <th className="w-20 p-3 text-right">Action</th>
@@ -294,6 +305,21 @@ export function InvoiceForm({
                                                 updateItem(
                                                     index,
                                                     'unit_amount',
+                                                    event.target.value,
+                                                )
+                                            }
+                                        />
+                                    </td>
+                                    <td className="p-3">
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={item.cost_amount ?? '0'}
+                                            onChange={(event) =>
+                                                updateItem(
+                                                    index,
+                                                    'cost_amount',
                                                     event.target.value,
                                                 )
                                             }
@@ -351,6 +377,22 @@ export function InvoiceForm({
 
                 <div className="space-y-3 rounded-lg border bg-card p-4">
                     <SummaryRow label="Sub Total" value={money(subtotal)} />
+                    <SummaryRow label="Cost (line items)" value={money(costTotal)} />
+                    <SummaryRow label="Calculated Profit" value={money(profit)} />
+                    <Field
+                        id="profit_amount"
+                        label="Profit (enter manually)"
+                        type="number"
+                        allowNegative
+                        value={data.profit_amount}
+                        error={errors.profit_amount}
+                        onChange={(value) => setData('profit_amount', value)}
+                    />
+                    <SummaryRow
+                        label="Profit used for reports"
+                        value={money(effectiveProfit)}
+                        strong
+                    />
                     <SummaryRow label="Discount" value={money(discount)} />
                     <SummaryRow label="Tax" value={money(tax)} />
                     <SummaryRow label="Invoice Total" value={money(total)} strong />
@@ -447,6 +489,7 @@ function Field({
     onChange,
     error,
     type = 'text',
+    allowNegative = false,
 }: {
     id: string;
     label: string;
@@ -454,6 +497,7 @@ function Field({
     onChange: (value: string) => void;
     error?: string;
     type?: string;
+    allowNegative?: boolean;
 }) {
     return (
         <div className="space-y-2">
@@ -462,7 +506,7 @@ function Field({
                 id={id}
                 type={type}
                 step={type === 'number' ? '0.01' : undefined}
-                min={type === 'number' ? '0' : undefined}
+                min={type === 'number' && !allowNegative ? '0' : undefined}
                 value={value}
                 onChange={(event) => onChange(event.target.value)}
             />

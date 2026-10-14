@@ -14,6 +14,7 @@ export type InvoiceItem = {
     id?: number;
     description: string;
     unit_amount: string;
+    cost_amount?: string;
     quantity: string;
     line_total?: string;
 };
@@ -32,6 +33,7 @@ export type Invoice = {
     invoice_total: string;
     total_paid: string;
     amount_due: string;
+    profit_amount: string | null;
     payment_status: InvoiceStatus;
     note: string | null;
     signature: string | null;
@@ -41,6 +43,9 @@ export type Invoice = {
     signatory_designation: string | null;
     client: Client;
     items: InvoiceItem[];
+    cost_total?: number;
+    profit?: number;
+    profit_source?: 'manual' | 'auto';
 };
 
 export type InvoiceStatus = 'draft' | 'unpaid' | 'partial' | 'paid' | 'overdue';
