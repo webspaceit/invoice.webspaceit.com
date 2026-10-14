@@ -14,7 +14,6 @@ export type InvoiceItem = {
     id?: number;
     description: string;
     unit_amount: string;
-    cost_amount?: string;
     quantity: string;
     line_total?: string;
 };
@@ -33,6 +32,8 @@ export type Invoice = {
     invoice_total: string;
     total_paid: string;
     amount_due: string;
+    domain_cost?: string;
+    hosting_cost?: string;
     payment_status: InvoiceStatus;
     note: string | null;
     signature: string | null;

@@ -72,17 +72,13 @@ export function invoiceToForm(
         signatory_designation: invoice?.signatory_designation ?? '',
         remove_signature: '0',
         _method: '',
-        // cost_amount is intentionally kept in the payload but not shown on the
-        // form. Line-item costs are managed on the Profit page; preserving the
-        // value here prevents an invoice edit from wiping those costs.
         items: invoice?.items?.length
             ? invoice.items.map((item) => ({
                 description: item.description,
                 unit_amount: item.unit_amount,
-                cost_amount: item.cost_amount ?? '0',
                 quantity: item.quantity,
             }))
-            : [{ description: '', unit_amount: '0', cost_amount: '0', quantity: '1' }],
+            : [{ description: '', unit_amount: '0', quantity: '1' }],
     };
 }
 
@@ -121,7 +117,7 @@ export function InvoiceForm({
     function addItem() {
         setData('items', [
             ...data.items,
-            { description: '', unit_amount: '0', cost_amount: '0', quantity: '1' },
+            { description: '', unit_amount: '0', quantity: '1' },
         ]);
     }
 

@@ -44,17 +44,17 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
     const [from, setFrom] = useState(filters.from ?? '');
     const [to, setTo] = useState(filters.to ?? '');
     const [editing, setEditing] = useState<Invoice | null>(null);
-    const [costs, setCosts] = useState<Record<number, string>>({});
+    const [domainCost, setDomainCost] = useState('0');
+    const [hostingCost, setHostingCost] = useState('0');
     const [saving, setSaving] = useState(false);
 
-    function openCostEditor(invoice: Invoice) {
-        setCosts(
-            invoice.items.reduce<Record<number, string>>((acc, item) => {
-                acc[item.id as number] = item.cost_amount ?? '0';
+    const editingRevenue = Number(editing?.subtotal ?? 0);
+    const editingCost = Number(domainCost || 0) + Number(hostingCost || 0);
+    const editingProfit = editingRevenue - editingCost;
 
-                return acc;
-            }, {}),
-        );
+    function openCostEditor(invoice: Invoice) {
+        setDomainCost(invoice.domain_cost ?? '0');
+        setHostingCost(invoice.hosting_cost ?? '0');
         setEditing(invoice);
     }
 
@@ -67,10 +67,8 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
         router.put(
             `/profit/invoices/${editing.id}/costs`,
             {
-                items: editing.items.map((item) => ({
-                    id: item.id,
-                    cost_amount: costs[item.id as number] ?? '0',
-                })),
+                domain_cost: domainCost,
+                hosting_cost: hostingCost,
             },
             {
                 preserveScroll: true,
@@ -105,9 +103,9 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
             <div>
                 <h1 className="text-2xl font-semibold">Profit</h1>
                 <p className="text-sm text-muted-foreground">
-                    Profit from paid invoices only. Enter each line item's cost price with the
-                    Cost button; profit is calculated automatically as the selling price minus
-                    the cost price.
+                    Profit from paid invoices only. Set each invoice's domain and hosting cost
+                    with the Cost button; profit is calculated automatically as the revenue
+                    minus those costs.
                 </p>
             </div>
 
@@ -121,7 +119,7 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                 />
                 <SummaryCard
                     icon={<Coins className="h-5 w-5" />}
-                    label="Cost (line items)"
+                    label="Cost (domain + hosting)"
                     value={money(summary.cost)}
                     variant="slate"
                 />
@@ -280,67 +278,53 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                     <DialogHeader>
                         <DialogTitle>Costs · {editing?.invoice_number}</DialogTitle>
                         <DialogDescription>
-                            Enter the cost price for each line item. Profit is calculated
-                            automatically as the selling price minus the cost price.
+                            Enter the domain and hosting cost for this invoice. Profit is
+                            calculated automatically as the revenue minus these costs.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                                    <th className="py-2 pr-2">Description</th>
-                                    <th className="w-16 py-2 pr-2 text-right">Qty</th>
-                                    <th className="w-28 py-2 pr-2 text-right">Amount</th>
-                                    <th className="w-32 py-2 pr-2 text-right">Cost</th>
-                                    <th className="w-28 py-2 text-right">Profit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {editing?.items.map((item) => {
-                                    const amount = Number(item.unit_amount || 0);
-                                    const qty = Number(item.quantity || 0);
-                                    const cost = Number(costs[item.id as number] ?? 0);
-                                    const rowProfit = (amount - cost) * qty;
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-1">
+                            <Label htmlFor="domain_cost">Domain Cost</Label>
+                            <Input
+                                id="domain_cost"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={domainCost}
+                                onChange={(event) => setDomainCost(event.target.value)}
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="hosting_cost">Hosting Cost</Label>
+                            <Input
+                                id="hosting_cost"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={hostingCost}
+                                onChange={(event) => setHostingCost(event.target.value)}
+                            />
+                        </div>
+                    </div>
 
-                                    return (
-                                        <tr key={item.id} className="border-b last:border-0">
-                                            <td className="py-2 pr-2">{item.description}</td>
-                                            <td className="py-2 pr-2 text-right tabular-nums">
-                                                {qty}
-                                            </td>
-                                            <td className="py-2 pr-2 text-right tabular-nums">
-                                                {money(amount)}
-                                            </td>
-                                            <td className="py-2 pr-2">
-                                                <Input
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.01"
-                                                    className="h-8 text-right"
-                                                    value={costs[item.id as number] ?? '0'}
-                                                    onChange={(event) =>
-                                                        setCosts((prev) => ({
-                                                            ...prev,
-                                                            [item.id as number]: event.target.value,
-                                                        }))
-                                                    }
-                                                />
-                                            </td>
-                                            <td
-                                                className={`py-2 text-right font-medium tabular-nums ${
-                                                    rowProfit >= 0
-                                                        ? 'text-emerald-600'
-                                                        : 'text-red-600'
-                                                }`}
-                                            >
-                                                {money(rowProfit)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                    <div className="space-y-1.5 rounded-lg border bg-muted/40 p-3 text-sm">
+                        <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">Revenue</span>
+                            <span className="tabular-nums">{money(editingRevenue)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">Total cost</span>
+                            <span className="tabular-nums">{money(editingCost)}</span>
+                        </div>
+                        <div
+                            className={`flex items-center justify-between font-semibold ${
+                                editingProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                            }`}
+                        >
+                            <span>Profit</span>
+                            <span className="tabular-nums">{money(editingProfit)}</span>
+                        </div>
                     </div>
 
                     <DialogFooter>

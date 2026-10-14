@@ -27,6 +27,8 @@ class Invoice extends Model
         'invoice_total',
         'total_paid',
         'amount_due',
+        'domain_cost',
+        'hosting_cost',
         'payment_status',
         'note',
         'signature',
@@ -48,7 +50,15 @@ class Invoice extends Model
         'total_paid' => 'decimal:2',
         'amount_due' => 'decimal:2',
         'actual_paid_amount' => 'decimal:2',
+        'domain_cost' => 'decimal:2',
+        'hosting_cost' => 'decimal:2',
     ];
+
+    /**
+     * Cost prices are admin-only data. Screens that show them (the profit
+     * report) call makeVisible() explicitly.
+     */
+    protected $hidden = ['domain_cost', 'hosting_cost'];
 
     public function client(): BelongsTo
     {
@@ -61,30 +71,19 @@ class Invoice extends Model
     }
 
     /**
-     * Gross profit for this invoice: (selling price - cost price) x quantity
-     * summed across all loaded line items.
+     * Total cost for this invoice: domain cost plus hosting cost.
      */
-    public function profitFromItems(): float
+    public function totalCost(): float
     {
-        return round(
-            $this->items->sum(
-                fn (InvoiceItem $item): float => ((float) $item->unit_amount - (float) $item->cost_amount) * (float) $item->quantity,
-            ),
-            2,
-        );
+        return round((float) $this->domain_cost + (float) $this->hosting_cost, 2);
     }
 
     /**
-     * Total cost of goods/services for this invoice based on loaded line items.
+     * Gross profit for this invoice: revenue minus domain and hosting cost.
      */
-    public function costFromItems(): float
+    public function profitAmount(): float
     {
-        return round(
-            $this->items->sum(
-                fn (InvoiceItem $item): float => (float) $item->cost_amount * (float) $item->quantity,
-            ),
-            2,
-        );
+        return round((float) $this->subtotal - $this->totalCost(), 2);
     }
 
     public static function nextInvoiceNumber(): string

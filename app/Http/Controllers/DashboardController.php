@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -44,19 +43,17 @@ class DashboardController extends Controller
         $profit = 0.0;
 
         if ($canViewProfit) {
-            $autoProfitQuery = InvoiceItem::query()
-                ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
-                ->where('invoices.payment_status', 'paid');
+            $profitQuery = Invoice::query()->where('payment_status', 'paid');
 
             if (!$isSuperAdmin) {
-                $autoProfitQuery->whereIn('invoices.client_id', $clientIds);
+                $profitQuery->whereIn('client_id', $clientIds);
             }
 
-            $autoProfit = (float) $autoProfitQuery
-                ->selectRaw('COALESCE(SUM(invoice_items.line_total - (invoice_items.cost_amount * invoice_items.quantity)), 0) as profit')
+            $profit = (float) $profitQuery
+                ->selectRaw('COALESCE(SUM(subtotal - domain_cost - hosting_cost), 0) as profit')
                 ->value('profit');
 
-            $profit = round($autoProfit, 2);
+            $profit = round($profit, 2);
         }
 
         return Inertia::render('dashboard', [

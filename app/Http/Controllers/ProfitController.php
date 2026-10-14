@@ -53,13 +53,11 @@ class ProfitController extends Controller
         }
 
         $aggregate = $applyFilters(
-            DB::table('invoice_items')
-                ->join('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
-                ->where('invoices.payment_status', 'paid')
+            DB::table('invoices')->where('payment_status', 'paid')
         )
             ->select(
-                DB::raw('COALESCE(SUM(invoice_items.line_total), 0) as revenue'),
-                DB::raw('COALESCE(SUM(invoice_items.cost_amount * invoice_items.quantity), 0) as cost'),
+                DB::raw('COALESCE(SUM(subtotal), 0) as revenue'),
+                DB::raw('COALESCE(SUM(domain_cost + hosting_cost), 0) as cost'),
             )
             ->first();
 
@@ -68,17 +66,17 @@ class ProfitController extends Controller
         $profit = round($revenue - $cost, 2);
 
         $invoices = (clone $base)
-            ->with(['client:id,name,company', 'items'])
+            ->with(['client:id,name,company'])
             ->orderByDesc('paid_date')
             ->orderByDesc('id')
             ->paginate(15)
             ->withQueryString();
 
         $invoices->through(function (Invoice $invoice): Invoice {
-            // Admins manage line-item costs from this page, so expose the value.
-            $invoice->items->each->makeVisible('cost_amount');
-            $invoice->setAttribute('cost_total', $invoice->costFromItems());
-            $invoice->setAttribute('profit', $invoice->profitFromItems());
+            // Admins edit domain/hosting cost from this page, so expose them.
+            $invoice->makeVisible(['domain_cost', 'hosting_cost']);
+            $invoice->setAttribute('cost_total', $invoice->totalCost());
+            $invoice->setAttribute('profit', $invoice->profitAmount());
 
             return $invoice;
         });
@@ -97,8 +95,8 @@ class ProfitController extends Controller
     }
 
     /**
-     * Update the cost price of the given invoice's line items. Costs are the
-     * only manually entered value behind the profit calculation.
+     * Update the domain and hosting cost of the given invoice. These are the
+     * only manually entered values behind the profit calculation.
      */
     public function updateCosts(Request $request, Invoice $invoice)
     {
@@ -110,16 +108,14 @@ class ProfitController extends Controller
         }
 
         $data = $request->validate([
-            'items' => ['required', 'array'],
-            'items.*.id' => ['required', 'integer'],
-            'items.*.cost_amount' => ['required', 'numeric', 'min:0'],
+            'domain_cost' => ['nullable', 'numeric', 'min:0'],
+            'hosting_cost' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        foreach ($data['items'] as $row) {
-            $invoice->items()
-                ->whereKey($row['id'])
-                ->update(['cost_amount' => round((float) $row['cost_amount'], 2)]);
-        }
+        $invoice->update([
+            'domain_cost' => round((float) ($data['domain_cost'] ?? 0), 2),
+            'hosting_cost' => round((float) ($data['hosting_cost'] ?? 0), 2),
+        ]);
 
         return back();
     }
