@@ -27,4 +27,11 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    build: {
+        // Some deployment environments ship a public/build directory owned by
+        // another user (e.g. root), which makes the default outDir cleanup fail
+        // with EACCES. Skipping the cleanup lets the build overwrite/refresh the
+        // generated manifest and assets safely; stale hashed files are harmless.
+        emptyOutDir: false,
+    },
 });
