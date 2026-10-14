@@ -72,6 +72,9 @@ export function invoiceToForm(
         signatory_designation: invoice?.signatory_designation ?? '',
         remove_signature: '0',
         _method: '',
+        // cost_amount is intentionally kept in the payload but not shown on the
+        // form. Line-item costs are managed on the Profit page; preserving the
+        // value here prevents an invoice edit from wiping those costs.
         items: invoice?.items?.length
             ? invoice.items.map((item) => ({
                 description: item.description,
@@ -100,11 +103,6 @@ export function InvoiceForm({
         (sum, item) => sum + Number(item.unit_amount || 0) * Number(item.quantity || 0),
         0,
     );
-    const costTotal = data.items.reduce(
-        (sum, item) => sum + Number(item.cost_amount || 0) * Number(item.quantity || 0),
-        0,
-    );
-    const profit = subtotal - costTotal;
     const discount = Math.min(Number(data.discount_amount || 0), subtotal);
     const taxableAmount = Math.max(subtotal - discount, 0);
     const tax = taxableAmount * (Number(data.tax_rate || 0) / 100);
@@ -257,13 +255,12 @@ export function InvoiceForm({
                     </Button>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[960px]">
+                    <table className="w-full min-w-[760px]">
                         <thead className="bg-primary text-white">
                             <tr>
                                 <th className="w-12 p-3 text-left">No.</th>
                                 <th className="p-3 text-left">Description</th>
                                 <th className="w-40 p-3 text-left">Amount</th>
-                                <th className="w-40 p-3 text-left">Cost</th>
                                 <th className="w-32 p-3 text-left">Qty.</th>
                                 <th className="w-40 p-3 text-right">Total</th>
                                 <th className="w-20 p-3 text-right">Action</th>
@@ -301,21 +298,6 @@ export function InvoiceForm({
                                                 updateItem(
                                                     index,
                                                     'unit_amount',
-                                                    event.target.value,
-                                                )
-                                            }
-                                        />
-                                    </td>
-                                    <td className="p-3">
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={item.cost_amount ?? '0'}
-                                            onChange={(event) =>
-                                                updateItem(
-                                                    index,
-                                                    'cost_amount',
                                                     event.target.value,
                                                 )
                                             }
@@ -373,12 +355,6 @@ export function InvoiceForm({
 
                 <div className="space-y-3 rounded-lg border bg-card p-4">
                     <SummaryRow label="Sub Total" value={money(subtotal)} />
-                    <SummaryRow label="Cost (line items)" value={money(costTotal)} />
-                    <SummaryRow
-                        label="Profit (Sub Total - Cost)"
-                        value={money(profit)}
-                        strong
-                    />
                     <SummaryRow label="Discount" value={money(discount)} />
                     <SummaryRow label="Tax" value={money(tax)} />
                     <SummaryRow label="Invoice Total" value={money(total)} strong />

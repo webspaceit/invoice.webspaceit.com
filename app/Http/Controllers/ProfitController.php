@@ -75,6 +75,8 @@ class ProfitController extends Controller
             ->withQueryString();
 
         $invoices->through(function (Invoice $invoice): Invoice {
+            // Admins manage line-item costs from this page, so expose the value.
+            $invoice->items->each->makeVisible('cost_amount');
             $invoice->setAttribute('cost_total', $invoice->costFromItems());
             $invoice->setAttribute('profit', $invoice->profitFromItems());
 
@@ -92,6 +94,34 @@ class ProfitController extends Controller
             'clients' => $this->clientOptions($user),
             'filters' => $request->only('client_id', 'from', 'to'),
         ]);
+    }
+
+    /**
+     * Update the cost price of the given invoice's line items. Costs are the
+     * only manually entered value behind the profit calculation.
+     */
+    public function updateCosts(Request $request, Invoice $invoice)
+    {
+        $user = $request->user();
+        $user->isAdmin() || abort(403);
+
+        if (!$user->isSuperAdmin()) {
+            abort_unless($user->clients()->whereKey($invoice->client_id)->exists(), 403);
+        }
+
+        $data = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*.id' => ['required', 'integer'],
+            'items.*.cost_amount' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        foreach ($data['items'] as $row) {
+            $invoice->items()
+                ->whereKey($row['id'])
+                ->update(['cost_amount' => round((float) $row['cost_amount'], 2)]);
+        }
+
+        return back();
     }
 
     private function clientOptions($user)

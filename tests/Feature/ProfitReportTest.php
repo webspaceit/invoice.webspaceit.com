@@ -41,9 +41,94 @@ test('profit report shows profit for paid invoices based on item cost', function
             ->where('summary.cost', fn ($value) => (float) $value === 400.0)
             ->where('summary.profit', fn ($value) => (float) $value === 600.0)
             ->where('invoices.data.0.profit', fn ($value) => (float) $value === 600.0)
+            ->where('invoices.data.0.items.0.cost_amount', fn ($value) => (float) $value === 400.0)
             ->missing('invoices.data.0.profit_source')
             ->missing('invoices.data.0.profit_amount')
         );
+});
+
+test('admins can update line item costs from the profit page', function () {
+    $this->actingAs(User::factory()->create(['role' => 'super_admin']));
+
+    $client = Client::create([
+        'name' => 'Acme',
+        'billing_address' => 'Dhaka',
+    ]);
+
+    $invoice = Invoice::create([
+        'client_id' => $client->id,
+        'invoice_number' => 'WSI-2026-9005',
+        'invoice_date' => '2026-06-08',
+        'due_date' => '2026-06-15',
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'total_paid' => 1000,
+        'amount_due' => 0,
+        'payment_status' => 'paid',
+        'paid_date' => '2026-06-10',
+    ]);
+
+    $item = $invoice->items()->create([
+        'description' => 'Hosting',
+        'unit_amount' => 1000,
+        'cost_amount' => 0,
+        'quantity' => 1,
+        'line_total' => 1000,
+    ]);
+
+    $this->put(route('profit.updateCosts', $invoice), [
+        'items' => [
+            ['id' => $item->id, 'cost_amount' => 250],
+        ],
+    ])->assertRedirect();
+
+    expect((float) $item->fresh()->cost_amount)->toBe(250.0);
+
+    $this->get(route('profit.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('summary.cost', fn ($value) => (float) $value === 250.0)
+            ->where('summary.profit', fn ($value) => (float) $value === 750.0)
+            ->where('invoices.data.0.items.0.cost_amount', fn ($value) => (float) $value === 250.0)
+        );
+});
+
+test('clients cannot update line item costs', function () {
+    $client = Client::create([
+        'name' => 'Acme',
+        'billing_address' => 'Dhaka',
+    ]);
+
+    $invoice = Invoice::create([
+        'client_id' => $client->id,
+        'invoice_number' => 'WSI-2026-9006',
+        'invoice_date' => '2026-06-08',
+        'due_date' => '2026-06-15',
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'total_paid' => 1000,
+        'amount_due' => 0,
+        'payment_status' => 'paid',
+        'paid_date' => '2026-06-10',
+    ]);
+
+    $item = $invoice->items()->create([
+        'description' => 'Hosting',
+        'unit_amount' => 1000,
+        'cost_amount' => 0,
+        'quantity' => 1,
+        'line_total' => 1000,
+    ]);
+
+    $this->actingAs(User::factory()->create(['role' => 'client']));
+
+    $this->put(route('profit.updateCosts', $invoice), [
+        'items' => [
+            ['id' => $item->id, 'cost_amount' => 250],
+        ],
+    ])->assertForbidden();
+
+    expect((float) $item->fresh()->cost_amount)->toBe(0.0);
 });
 
 test('profit only counts paid invoices', function () {

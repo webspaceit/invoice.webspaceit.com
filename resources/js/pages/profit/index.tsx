@@ -1,7 +1,15 @@
 import { FormEvent, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Coins, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Coins, Pencil, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -35,6 +43,42 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
     const [clientId, setClientId] = useState(filters.client_id ?? 'all');
     const [from, setFrom] = useState(filters.from ?? '');
     const [to, setTo] = useState(filters.to ?? '');
+    const [editing, setEditing] = useState<Invoice | null>(null);
+    const [costs, setCosts] = useState<Record<number, string>>({});
+    const [saving, setSaving] = useState(false);
+
+    function openCostEditor(invoice: Invoice) {
+        setCosts(
+            invoice.items.reduce<Record<number, string>>((acc, item) => {
+                acc[item.id as number] = item.cost_amount ?? '0';
+
+                return acc;
+            }, {}),
+        );
+        setEditing(invoice);
+    }
+
+    function saveCosts() {
+        if (!editing) {
+            return;
+        }
+
+        setSaving(true);
+        router.put(
+            `/profit/invoices/${editing.id}/costs`,
+            {
+                items: editing.items.map((item) => ({
+                    id: item.id,
+                    cost_amount: costs[item.id as number] ?? '0',
+                })),
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => setEditing(null),
+                onFinish: () => setSaving(false),
+            },
+        );
+    }
 
     function applyFilters(event: FormEvent) {
         event.preventDefault();
@@ -61,8 +105,9 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
             <div>
                 <h1 className="text-2xl font-semibold">Profit</h1>
                 <p className="text-sm text-muted-foreground">
-                    Profit from paid invoices only. Profit is calculated automatically as the
-                    selling price minus the cost price entered on each line item.
+                    Profit from paid invoices only. Enter each line item's cost price with the
+                    Cost button; profit is calculated automatically as the selling price minus
+                    the cost price.
                 </p>
             </div>
 
@@ -156,12 +201,13 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                                 <th className="px-4 py-3 text-right">Revenue</th>
                                 <th className="px-4 py-3 text-right">Cost</th>
                                 <th className="px-4 py-3 text-right">Profit</th>
+                                <th className="px-4 py-3 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {invoices.data.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                                         <Coins className="mx-auto mb-2 size-8 text-muted-foreground/40" />
                                         No paid invoices found for these filters.
                                     </td>
@@ -209,6 +255,17 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                                         >
                                             {money(profit)}
                                         </td>
+                                        <td className="px-4 py-3 text-right">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => openCostEditor(invoice)}
+                                            >
+                                                <Pencil className="mr-1.5 size-3.5" />
+                                                Cost
+                                            </Button>
+                                        </td>
                                     </tr>
                                 );
                             })}
@@ -217,6 +274,85 @@ export default function ProfitIndex({ invoices, summary, clients, filters }: Pro
                 </div>
                 <Pagination paginated={invoices} />
             </div>
+
+            <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Costs · {editing?.invoice_number}</DialogTitle>
+                        <DialogDescription>
+                            Enter the cost price for each line item. Profit is calculated
+                            automatically as the selling price minus the cost price.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+                                    <th className="py-2 pr-2">Description</th>
+                                    <th className="w-16 py-2 pr-2 text-right">Qty</th>
+                                    <th className="w-28 py-2 pr-2 text-right">Amount</th>
+                                    <th className="w-32 py-2 pr-2 text-right">Cost</th>
+                                    <th className="w-28 py-2 text-right">Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {editing?.items.map((item) => {
+                                    const amount = Number(item.unit_amount || 0);
+                                    const qty = Number(item.quantity || 0);
+                                    const cost = Number(costs[item.id as number] ?? 0);
+                                    const rowProfit = (amount - cost) * qty;
+
+                                    return (
+                                        <tr key={item.id} className="border-b last:border-0">
+                                            <td className="py-2 pr-2">{item.description}</td>
+                                            <td className="py-2 pr-2 text-right tabular-nums">
+                                                {qty}
+                                            </td>
+                                            <td className="py-2 pr-2 text-right tabular-nums">
+                                                {money(amount)}
+                                            </td>
+                                            <td className="py-2 pr-2">
+                                                <Input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    className="h-8 text-right"
+                                                    value={costs[item.id as number] ?? '0'}
+                                                    onChange={(event) =>
+                                                        setCosts((prev) => ({
+                                                            ...prev,
+                                                            [item.id as number]: event.target.value,
+                                                        }))
+                                                    }
+                                                />
+                                            </td>
+                                            <td
+                                                className={`py-2 text-right font-medium tabular-nums ${
+                                                    rowProfit >= 0
+                                                        ? 'text-emerald-600'
+                                                        : 'text-red-600'
+                                                }`}
+                                            >
+                                                {money(rowProfit)}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditing(null)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={saveCosts} disabled={saving}>
+                            {saving ? 'Saving…' : 'Save costs'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
