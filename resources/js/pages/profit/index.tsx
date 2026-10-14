@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Coins, Pencil, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Coins, Download, Pencil, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -107,6 +107,37 @@ export default function ProfitIndex({ invoices, summary, clients, clientProfit, 
         router.get('/profit', {}, { preserveState: true, preserveScroll: true });
     }
 
+    function filterByClient(id: number) {
+        const next = String(id);
+        setClientId(next);
+        router.get(
+            '/profit',
+            {
+                client_id: next,
+                from: from || undefined,
+                to: to || undefined,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
+
+    function exportCsv() {
+        const params = new URLSearchParams();
+
+        if (clientId !== 'all') {
+            params.set('client_id', clientId);
+        }
+        if (from) {
+            params.set('from', from);
+        }
+        if (to) {
+            params.set('to', to);
+        }
+
+        const query = params.toString();
+        window.location.href = `/profit/export${query ? `?${query}` : ''}`;
+    }
+
     return (
         <div className="space-y-6 p-6">
             <div>
@@ -154,11 +185,23 @@ export default function ProfitIndex({ invoices, summary, clients, clientProfit, 
 
             {/* Profit by client */}
             <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                <div className="border-b px-4 py-3">
-                    <h2 className="text-sm font-semibold">Profit by Client</h2>
-                    <p className="text-xs text-muted-foreground">
-                        Total profit: {money(summary.profit)}
-                    </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+                    <div>
+                        <h2 className="text-sm font-semibold">Profit by Client</h2>
+                        <p className="text-xs text-muted-foreground">
+                            Total profit: {money(summary.profit)} · click a client to filter
+                        </p>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={exportCsv}
+                        disabled={clientProfit.length === 0}
+                    >
+                        <Download className="mr-2 size-4" />
+                        Export CSV
+                    </Button>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[720px] text-sm">
@@ -185,7 +228,9 @@ export default function ProfitIndex({ invoices, summary, clients, clientProfit, 
                             {clientProfit.map((row) => (
                                 <tr
                                     key={row.client_id}
-                                    className="border-b transition-colors last:border-0 hover:bg-gray-50"
+                                    onClick={() => filterByClient(row.client_id)}
+                                    title={`Show ${row.name}'s invoices`}
+                                    className="cursor-pointer border-b transition-colors last:border-0 hover:bg-gray-50"
                                 >
                                     <td className="px-4 py-3">
                                         <div className="font-medium">{row.name}</div>

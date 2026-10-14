@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('invoices/{invoice}/payment-slip', [InvoiceController::class, 'removePaymentSlip'])->name('invoices.removePaymentSlip');
     Route::resource('invoices', InvoiceController::class);
     Route::get('profit', ProfitController::class)->name('profit.index');
+    Route::get('profit/export', [ProfitController::class, 'export'])->name('profit.export');
     Route::put('profit/invoices/{invoice}/costs', [ProfitController::class, 'updateCosts'])->name('profit.updateCosts');
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users', [UserController::class, 'store'])->name('users.store');

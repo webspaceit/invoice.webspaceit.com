@@ -130,6 +130,37 @@ test('profit report groups profit by client', function () {
         );
 });
 
+test('admins can export the profit by client breakdown as csv', function () {
+    $this->actingAs(User::factory()->create(['role' => 'super_admin']));
+
+    $client = makeClient();
+
+    makeInvoice($client, 'WSI-2026-9301', [
+        'subtotal' => 1000,
+        'invoice_total' => 1000,
+        'domain_cost' => 150,
+        'hosting_cost' => 250,
+    ]);
+
+    $response = $this->get(route('profit.export'));
+
+    $response->assertOk();
+    expect($response->headers->get('content-type'))->toContain('text/csv');
+
+    $content = $response->streamedContent();
+    expect($content)->toContain('Client,Company');
+    expect($content)->toContain('Revenue,Cost,Profit');
+    expect($content)->toContain('Acme');
+    expect($content)->toContain('Total');
+    expect($content)->toContain('1000');
+});
+
+test('clients cannot export profit data', function () {
+    $this->actingAs(User::factory()->create(['role' => 'client']));
+
+    $this->get(route('profit.export'))->assertForbidden();
+});
+
 test('non admin users cannot access the profit report', function () {
     $this->actingAs(User::factory()->create(['role' => 'client']));
 
